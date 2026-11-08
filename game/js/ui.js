@@ -487,7 +487,7 @@ export function initUI(engine, bus) {
   // =====================================================================
   function openLiveDialog() {
     const info = live.getInfo();
-    const $url = el('input', { type: 'text', value: tryStore('st.liveUrl') || info.baseUrl || 'http://localhost:5001', id: 'live-url', autocomplete: 'off' });
+    const $url = el('input', { type: 'text', value: tryStore('st.liveUrl') || (location.pathname.startsWith('/town') ? location.origin : (info.baseUrl || 'http://localhost:5001')), id: 'live-url', autocomplete: 'off' });
     const $sim = el('input', { type: 'text', value: tryStore('st.liveSim') || info.simId || '', id: 'live-sim', placeholder: 'sim_xxxxxxxxxxxx', autocomplete: 'off' });
     const $stat = el('div', { class: 'live-status', role: 'status' });
     const $go = el('button', { class: 'btn primary', onclick: go }, 'Connect');
