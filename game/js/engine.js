@@ -735,6 +735,7 @@ export function createEngine(canvas) {
     {
       const withB = list.filter(a => a.bubble).sort((p, q) => (p.id === selected) - (q.id === selected) || q.bubble.t - p.bubble.t).reverse();
       const taken = [];
+      if (hype && hype.layout) { const o = world.board; const [bx, by] = S(o.x + o.img.width / 2, o.y); taken.push(drawBubble(ctx, bx * k, by * k - 44, hype.layout, getIcon('fire'), { measureOnly: true })); }
       const hit = r => taken.some(t => r.x < t.x + t.w && r.x + r.w > t.x && r.y < t.y + t.h && r.y + r.h > t.y);
       for (const a of withB) {
         const [hx, hy] = S(a.x, a.y - 20);
