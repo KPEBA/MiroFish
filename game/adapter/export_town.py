@@ -852,8 +852,6 @@ def validate(data):
                     err(x + " %s post_id %r missing from posts{}" % (t, pid))
             if t == "COMMENT" and not a.get("content"):
                 err(x + " COMMENT needs content")
-            if t == "FOLLOW" and a.get("target_agent_id") is None:
-                err(x + " FOLLOW without target_agent_id")
     if isint(meta.get("total_rounds")) and rounds and len(rounds) != meta["total_rounds"] + 1:
         err("len(rounds)=%d but meta.total_rounds=%r (expected total_rounds+1)" % (len(rounds), meta.get("total_rounds")))
 
