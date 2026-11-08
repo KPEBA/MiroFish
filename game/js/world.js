@@ -6,7 +6,7 @@ import {
 } from './sprites.js';
 
 const CW = 22, CH = 18;            // macro cell size (tiles) incl. 2-tile road on top/left
-const HOUSES_PER_BLOCK = 12;
+const HALF = 6;
 const COST = new Float32Array(16);
 COST[T.ROAD] = 1; COST[T.PATH] = 1; COST[T.PLAZA] = 1; COST[T.DOCK] = 1.1;
 COST[T.GRASS] = 1.9; COST[T.PARK] = 1.6; COST[T.SAND] = 2.3; COST[T.FIELD] = 3.2;
@@ -26,8 +26,11 @@ export function buildWorld(data) {
   for (const a of agents) { const t = a.type || 'Townsfolk'; if (!byType.has(t)) byType.set(t, []); byType.get(t).push(a.id); }
   const types = [...byType.keys()].sort((a, b) => byType.get(b).length - byType.get(a).length || a.localeCompare(b));
   const typeColor = new Map(types.map((t, i) => [t, ROOF_COLORS[i % ROOF_COLORS.length]]));
+  // half-blocks of 6 houses (2 cols x 3 rows); two halves share one macro cell
+  const halves = [];
+  for (const t of types) { const ids = byType.get(t); for (let i = 0; i < ids.length; i += HALF) halves.push({ type: t, ids: ids.slice(i, i + HALF) }); }
   const blocks = [];
-  for (const t of types) { const ids = byType.get(t); for (let i = 0; i < ids.length; i += HOUSES_PER_BLOCK) blocks.push({ type: t, ids: ids.slice(i, i + HOUSES_PER_BLOCK) }); }
+  for (let i = 0; i < halves.length; i += 2) blocks.push([halves[i], halves[i + 1] || null]);
   let r = 1; while ((2 + 2 * r) ** 2 - 4 < blocks.length + 2) r++;
   const MG = 2 + 2 * r, margin = 14;
   const townW = MG * CW + 2, townH = MG * CH + 2;
@@ -160,39 +163,51 @@ export function buildWorld(data) {
     const x0 = ox + cell.cx * CW, y0 = oy + cell.cy * CH, ix = x0 + 2, iy = y0 + 2;
     const blk = blocks[ci];
     if (blk) {
-      const color = typeColor.get(blk.type);
-      if (!districts.has(blk.type)) districts.set(blk.type, { type: blk.type, color, count: 0, signs: [] });
-      const dist = districts.get(blk.type);
-      dist.count += blk.ids.length;
-      const sign = addObj(makeSignpost(color), ix, iy, 1, 1, 'sign');
-      dist.signs.push({ x: sign.x + 9, y: sign.y });
-      labels.push({ text: blk.type, x: sign.x + 9, y: sign.y - 1, kind: 'district', color });
+      for (let x = ix; x <= ix + 19; x++) for (let rr = 0; rr < 3; rr++) setT(x, iy + 5 + rr * 5, T.PATH);
       addObj(makeLamp(), ix + 19, iy, 1, 1, 'lamp');
-      for (let rr = 0; rr < 3; rr++) for (let x = ix; x <= ix + 19; x++) setT(x, iy + 5 + rr * 5, T.PATH);
-      for (let k = 0; k < HOUSES_PER_BLOCK; k++) {
-        const c = k % 4, rr = Math.floor(k / 4);
-        const hx = ix + c * 5, hy = iy + 1 + rr * 5;
-        const id = blk.ids[k];
-        noTree[I(hx + 2, hy + 3)] = 1; noTree[I(hx + 1, hy + 3)] = 1; noTree[I(hx + 3, hy + 3)] = 1;
-        if (id !== undefined) {
-          setT(hx + 2, hy + 3, T.PATH);
-          const hs = makeHouse(color, hashStr('house' + id));
-          const house = addObj(hs, hx + 1, hy + 1, 3, 2, 'house', { owner: id });
-          house.windows = hs.windows.map(w => ({ x: house.x + w.x, y: house.y + w.y, w: w.w, h: w.h }));
-          house.chimney = { x: house.x + hs.chimney.x + 1, y: house.y + hs.chimney.y + 1 };
-          homes.set(id, { door: { x: hx + 2, y: hy + 3 }, house, type: blk.type, color });
-          const h = hash2(hx, hy, seed);
-          if (h < 0.35) addObj(makeBush(hashStr('b' + hx + hy)), hx + 1, hy + 3, 1, 1, 'bush');
-          else if (h < 0.6) deco[I(hx + 1, hy + 3)] = 1;
-          if (hash2(hy, hx, seed) < 0.4) deco[I(hx + 3, hy + 3)] = 1;
-        } else {
-          // empty lot: little garden
-          const h = hash2(hx, hy, seed + 5);
-          if (h < 0.5) { placeTree(hx + 2, hy + 1); placeTree(hx + 1, hy + 2, 'round'); }
-          else { addObj(makeFlowerBed(hashStr('g' + hx + hy)), hx + 1, hy + 2, 1, 1, 'flowers'); addObj(makeFlowerBed(hashStr('h' + hx + hy)), hx + 3, hy + 2, 1, 1, 'flowers'); deco[I(hx + 2, hy + 1)] = 1; }
+      blk.forEach((half, hi) => {
+        const hx0 = ix + hi * 10;
+        if (!half) {
+          // spare half: small green with trees
+          for (let y = iy + 1; y <= iy + 14; y++) for (let x = hx0; x <= hx0 + 9; x++) {
+            if (getT(x, y) !== T.GRASS) continue;
+            const h = hash2(x, y, seed + 17);
+            if (h < 0.12) placeTree(x, y); else if (h < 0.3) deco[I(x, y)] = h < 0.22 ? 1 : 2;
+          }
+          return;
         }
-        if (c < 3 && hash2(hx, hy, seed + 9) < 0.3) placeTree(hx + 4, hy + 1, 'round');
-      }
+        const color = typeColor.get(half.type);
+        if (!districts.has(half.type)) districts.set(half.type, { type: half.type, color, count: 0, signs: [] });
+        const dist = districts.get(half.type);
+        dist.count += half.ids.length;
+        const sign = addObj(makeSignpost(color), hx0, iy, 1, 1, 'sign');
+        dist.signs.push({ x: sign.x + 9, y: sign.y });
+        labels.push({ text: half.type, x: sign.x + 9, y: sign.y - 1, kind: 'district', color });
+        for (let k = 0; k < HALF; k++) {
+          const c = k % 2, rr = Math.floor(k / 2);
+          const hx = hx0 + c * 5, hy = iy + 1 + rr * 5;
+          const id = half.ids[k];
+          noTree[I(hx + 2, hy + 3)] = 1; noTree[I(hx + 1, hy + 3)] = 1; noTree[I(hx + 3, hy + 3)] = 1;
+          if (id !== undefined) {
+            setT(hx + 2, hy + 3, T.PATH);
+            const hs = makeHouse(color, hashStr('house' + id));
+            const house = addObj(hs, hx + 1, hy + 1, 3, 2, 'house', { owner: id });
+            house.windows = hs.windows.map(w => ({ x: house.x + w.x, y: house.y + w.y, w: w.w, h: w.h }));
+            house.chimney = { x: house.x + hs.chimney.x + 1, y: house.y + hs.chimney.y + 1 };
+            homes.set(id, { door: { x: hx + 2, y: hy + 3 }, house, type: half.type, color });
+            const h = hash2(hx, hy, seed);
+            if (h < 0.35) addObj(makeBush(hashStr('b' + hx + hy)), hx + 1, hy + 3, 1, 1, 'bush');
+            else if (h < 0.6) deco[I(hx + 1, hy + 3)] = 1;
+            if (hash2(hy, hx, seed) < 0.4) deco[I(hx + 3, hy + 3)] = 1;
+          } else {
+            const h = hash2(hx, hy, seed + 5);
+            if (h < 0.45) { placeTree(hx + 2, hy + 1); placeTree(hx + 1, hy + 2, 'round'); deco[I(hx + 3, hy + 2)] = 1; }
+            else if (h < 0.75) { addObj(makeFlowerBed(hashStr('g' + hx + hy)), hx + 1, hy + 2, 1, 1, 'flowers'); addObj(makeFlowerBed(hashStr('h' + hx + hy)), hx + 3, hy + 2, 1, 1, 'flowers'); deco[I(hx + 2, hy + 1)] = 1; }
+            else { addObj(makeBench(), hx + 1, hy + 2, 2, 1, 'bench'); placeTree(hx + 3, hy + 1, 'fruit'); deco[I(hx + 1, hy + 1)] = 2; }
+          }
+          if (hash2(hx, hy, seed + 9) < 0.3) placeTree(hx + 4, hy + 1, 'round');
+        }
+      });
     } else {
       // nature cell
       const kinds = ['forest', 'meadow', 'farm', 'pond', 'orchard', 'forest'];

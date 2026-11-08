@@ -95,7 +95,11 @@ def main():
             print(f"  - {err}")
         sys.exit(1)
     if not (AUTH_USER and AUTH_PASSWORD):
-        print("WARNING: BASIC_AUTH_USER / BASIC_AUTH_PASSWORD not set - the site is PUBLIC.")
+        if os.environ.get("ALLOW_PUBLIC") != "1":
+            print("Refusing to start: set BASIC_AUTH_USER and BASIC_AUTH_PASSWORD "
+                  "(or ALLOW_PUBLIC=1 to run without authentication).")
+            sys.exit(1)
+        print("WARNING: ALLOW_PUBLIC=1 - the site is PUBLIC, anyone can spend your API credits.")
 
     app = build_app()
     port = int(os.environ.get("PORT", os.environ.get("FLASK_PORT", 5001)))

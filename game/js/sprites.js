@@ -683,6 +683,7 @@ export function drawBubble(ctx, sx, sy, layout, icon, opts = {}) {
   const w = Math.max(hasText ? layout.w + pad * 2 + iw : iw + 6, 16);
   const h = hasText ? layout.lines.length * lh + pad * 2 - 2 : (icon ? icon.height * s + 6 : 16);
   const x = Math.round(sx - w / 2), y = Math.round(sy - h - 6);
+  if (opts.measureOnly) return { x, y, w, h: h + 6 };
   const bg = opts.bg || '#fffdf6', bd = opts.border || OUTLINE;
   ctx.fillStyle = bd;
   ctx.fillRect(x + 2, y, w - 4, h); ctx.fillRect(x, y + 2, w, h - 4); ctx.fillRect(x + 1, y + 1, w - 2, h - 2);

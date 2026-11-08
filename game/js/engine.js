@@ -731,6 +731,26 @@ export function createEngine(canvas) {
     // agents: mood pips, tags, bubbles
     const showAllTags = zcss >= 4;
     const list = agents.filter(a => !a.sleeping && a.x > vx0 - 40 && a.x < vx1 + 40 && a.y > vy0 - 20 && a.y < vy1 + 60).sort((p, q) => p.y - q.y);
+    // bubble declutter: newest bubbles claim space first; overlapping ones shrink to icon or hide
+    {
+      const withB = list.filter(a => a.bubble).sort((p, q) => (p.id === selected) - (q.id === selected) || q.bubble.t - p.bubble.t).reverse();
+      const taken = [];
+      const hit = r => taken.some(t => r.x < t.x + t.w && r.x + r.w > t.x && r.y < t.y + t.h && r.y + r.h > t.y);
+      for (const a of withB) {
+        const [hx, hy] = S(a.x, a.y - 20);
+        const X = hx * k, Y = hy * k, b = a.bubble;
+        const lay = bubbleLayout(b);
+        const top = Y - 3 - ((showAllTags || a.id === selected || a.id === hovered || a.id === followId) ? 17 : 0);
+        let r = drawBubble(ctx, X, top + 4, lay, b.icon, { measureOnly: true });
+        b.mode = 'full';
+        if (a.id !== selected && a.id !== hovered && hit(r)) {
+          b.mode = 'icon';
+          r = drawBubble(ctx, X, top + 4, null, b.icon, { measureOnly: true });
+          if (hit(r)) { const o = taken.filter(t => r.x < t.x + t.w && r.x + r.w > t.x && r.y < t.y + t.h && r.y + r.h > t.y).length; b.mode = o > 1 ? 'hide' : 'icon'; }
+        }
+        if (b.mode !== 'hide') taken.push(r);
+      }
+    }
     const sel = [];
     for (const a of list) {
       const [hx, hy] = S(a.x, a.y - 20);
@@ -779,13 +799,19 @@ export function createEngine(canvas) {
     }
     ctx.restore();
   }
+  function bubbleLayout(b) {
+    if (!b.layout) return null;
+    if (cam.z / dpr >= 2) return b.layout;
+    if (!b.short) { const l0 = b.layout.lines[0]; b.short = { lines: [l0 + (b.layout.lines.length > 1 && !l0.endsWith('…') ? '…' : '')], w: b.layout.w + 8 }; }
+    return b.short;
+  }
   function drawAgentBubble(a, X, top) {
     const b = a.bubble;
     const fade = clamp(Math.min(b.t * 6, (b.life - b.t) * 3), 0, 1);
     ctx.globalAlpha = fade;
-    const zc = cam.z / dpr;
-    const lay = zc < 2 && b.layout ? { lines: [b.layout.lines[0] + (b.layout.lines.length > 1 && !b.layout.lines[0].endsWith('…') ? '…' : '')], w: b.layout.w } : b.layout;
-    drawBubble(ctx, X, top + 4, lay, b.icon, { accent: b.accent });
+    if (b.mode === 'hide') { ctx.globalAlpha = 1; return; }
+    const lay = b.mode === 'icon' ? null : bubbleLayout(b);
+    drawBubble(ctx, X, top + 4, lay, b.icon, { accent: lay ? b.accent : null });
     ctx.globalAlpha = 1;
   }
 
