@@ -912,7 +912,8 @@ export function createEngine(canvas) {
     selected = null; hovered = null; followId = null; hype = null; effects = []; atEnd = false;
     playing = false;
     if (!keep) {
-      cam.z = clamp(Math.round(2 * dpr), zMin(), zMax());
+      resize();
+      cam.z = clamp(Math.round((cw / dpr < 700 || ch / dpr < 420 ? 1 : 2) * dpr), zMin(), zMax());
       cam.x = world.places.plaza.center.x; cam.y = world.places.plaza.center.y - 2 * TILE; cam.tx = null;
       clampCam();
     }
