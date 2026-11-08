@@ -1,0 +1,3468 @@
+{
+ "version": 1,
+ "meta": {
+  "simulation_id": "sim_sample_saltmarsh",
+  "title": "Simulate how public opinion in a small coastal town evolves over 24 hours after a proposa…",
+  "requirement": "Simulate how public opinion in a small coastal town evolves over 24 hours after a proposal to build a 40 MW data center on the old cannery site. Track how rumors, official statements and journalism shape the debate.",
+  "narrative": "A rumor about groundwater use spreads, a journalist exposes an undisclosed meeting by a councilman, and the town slowly shifts from slogans to a demand for process and evidence.",
+  "hot_topics": [
+   "data center",
+   "water rights",
+   "NorthGrid",
+   "Old Cannery",
+   "council transparency",
+   "local jobs"
+  ],
+  "platforms": [
+   "twitter",
+   "reddit"
+  ],
+  "minutes_per_round": 60,
+  "total_rounds": 24,
+  "start_hour": 7,
+  "source": "sample"
+ },
+ "agents": [
+  {
+   "id": 0,
+   "name": "Maria Alvarez",
+   "username": "maria_alvarez",
+   "type": "Resident",
+   "bio": "Teacher, mom of two, 400 m from the Old Cannery. Asks too many questions at town meetings.",
+   "persona": "Maria has lived in Saltmarsh Bay all her life and drinks well water. She distrusts big companies but is honest enough to correct herself when shown evidence.",
+   "stance": "opposing",
+   "sentiment_bias": -0.6,
+   "influence": 0.9,
+   "activity_level": 0.7,
+   "active_hours": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "profession": "Elementary school teacher",
+   "mbti": "ISFJ",
+   "age": 41
+  },
+  {
+   "id": 1,
+   "name": "Tom Becker",
+   "username": "tom_b_cold_storage",
+   "type": "Resident",
+   "bio": "Night shift at the cannery freezer. Two kids, one mortgage. Wants jobs that stay.",
+   "persona": "Tom watched three local employers close. He believes the town needs steady paychecks and is impatient with what he sees as panic.",
+   "stance": "supportive",
+   "sentiment_bias": 0.6,
+   "influence": 0.8,
+   "activity_level": 0.6,
+   "active_hours": [
+    0,
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Cold-storage technician",
+   "mbti": "ESTP",
+   "age": 38
+  },
+  {
+   "id": 2,
+   "name": "Priya Nair",
+   "username": "priya_courier",
+   "type": "Journalist",
+   "bio": "Reporter at the Bay Courier. Documents over opinions. DMs open.",
+   "persona": "Priya is relentless and fair. She keeps a public log of corrections and works late. A scoop matters to her, but accuracy matters more.",
+   "stance": "neutral",
+   "sentiment_bias": 0.0,
+   "influence": 2.4,
+   "activity_level": 0.9,
+   "active_hours": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Reporter, Bay Courier",
+   "mbti": "ENTJ",
+   "age": 33
+  },
+  {
+   "id": 3,
+   "name": "Dana Whitlock",
+   "username": "mayor_whitlock",
+   "type": "CityOfficial",
+   "bio": "Mayor of Saltmarsh Bay. Proud of this town. Office hours Tuesdays.",
+   "persona": "Dana champions the data center for the tax base but insists on process. She tends to speak in careful, formal sentences.",
+   "stance": "supportive",
+   "sentiment_bias": 0.5,
+   "influence": 2.8,
+   "activity_level": 0.6,
+   "active_hours": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "profession": "Mayor of Saltmarsh Bay",
+   "mbti": "ENFJ",
+   "age": 54
+  },
+  {
+   "id": 4,
+   "name": "Greg Hallam",
+   "username": "council_hallam",
+   "type": "CityOfficial",
+   "bio": "Councilman, District 2. Former harbor master. Practical over political.",
+   "persona": "Greg believes in getting things built. He is defensive when criticized and has family ties to local contractors.",
+   "stance": "neutral",
+   "sentiment_bias": 0.1,
+   "influence": 1.5,
+   "activity_level": 0.5,
+   "active_hours": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Town councilman",
+   "mbti": "ESTJ",
+   "age": 59
+  },
+  {
+   "id": 5,
+   "name": "Lena Fischer",
+   "username": "lena_fischer",
+   "type": "Activist",
+   "bio": "Tide Watch coalition. Protect the mudflats, protect the herons.",
+   "persona": "Lena runs the Tide Watch coalition. Passionate, quick to organize, sometimes quick to assume the worst of developers.",
+   "stance": "opposing",
+   "sentiment_bias": -0.9,
+   "influence": 1.7,
+   "activity_level": 0.9,
+   "active_hours": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Coastal conservation organizer",
+   "mbti": "ENFP",
+   "age": 36
+  },
+  {
+   "id": 6,
+   "name": "Jonas Reyes",
+   "username": "jonas_reyes",
+   "type": "Activist",
+   "bio": "Organizer. Community benefits, not corporate promises.",
+   "persona": "Jonas is pro-jobs but anti-secrecy. He pushes for enforceable community benefit agreements and gets angry at vague promises.",
+   "stance": "opposing",
+   "sentiment_bias": -0.7,
+   "influence": 1.2,
+   "activity_level": 0.7,
+   "active_hours": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Union electrician turned organizer",
+   "mbti": "INTJ",
+   "age": 45
+  },
+  {
+   "id": 7,
+   "name": "Chloe Park",
+   "username": "chloe_park",
+   "type": "Student",
+   "bio": "Env sci @ Bay State. Petitions, memes, and tide charts.",
+   "persona": "Chloe is idealistic and online constantly. She mobilizes classmates but sometimes shares claims before checking them.",
+   "stance": "opposing",
+   "sentiment_bias": -0.7,
+   "influence": 0.8,
+   "activity_level": 0.9,
+   "active_hours": [
+    0,
+    1,
+    2,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Environmental science student",
+   "mbti": "INFP",
+   "age": 20
+  },
+  {
+   "id": 8,
+   "name": "Sam Okoye",
+   "username": "sam_okoye",
+   "type": "Student",
+   "bio": "CS student. Sleep is optional. Curious about everything, committed to nothing yet.",
+   "persona": "Sam likes the technology but not the secrecy. He asks naive questions that turn out to be good ones.",
+   "stance": "neutral",
+   "sentiment_bias": 0.0,
+   "influence": 0.7,
+   "activity_level": 0.8,
+   "active_hours": [
+    0,
+    1,
+    2,
+    3,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Computer science student",
+   "mbti": "INTP",
+   "age": 21
+  },
+  {
+   "id": 9,
+   "name": "Rita Moreno",
+   "username": "rita_moreno",
+   "type": "BusinessOwner",
+   "bio": "Harbor Light Diner. Pie since 1998. Every customer matters.",
+   "persona": "Rita has watched her lunch crowd shrink since the cannery closed. Warm, talkative, optimistic, and not shy about telling people to calm down.",
+   "stance": "supportive",
+   "sentiment_bias": 0.7,
+   "influence": 1.1,
+   "activity_level": 0.7,
+   "active_hours": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Owner, Harbor Light Diner",
+   "mbti": "ESFJ",
+   "age": 49
+  },
+  {
+   "id": 10,
+   "name": "Walt Ferris",
+   "username": "walt_ferris",
+   "type": "BusinessOwner",
+   "bio": "Ferris Marine Supply since 1991. Boats, bait, and common sense.",
+   "persona": "Walt depends on harbor traffic and the tidal flats. Grumpy but fair, concerned about trucks, noise, and what happens when a company leaves.",
+   "stance": "opposing",
+   "sentiment_bias": -0.5,
+   "influence": 0.9,
+   "activity_level": 0.6,
+   "active_hours": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "profession": "Owner, Ferris Marine Supply",
+   "mbti": "ISTJ",
+   "age": 62
+  },
+  {
+   "id": 11,
+   "name": "Dr. Amara Singh",
+   "username": "dr_amara_singh",
+   "type": "Scientist",
+   "bio": "Hydrogeologist. Aquifers, not opinions. I show my work.",
+   "persona": "Amara cares about the aquifer and evidence. She writes long careful threads and corrects both sides.",
+   "stance": "neutral",
+   "sentiment_bias": 0.0,
+   "influence": 1.8,
+   "activity_level": 0.6,
+   "active_hours": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "profession": "Hydrogeologist, Bay State University",
+   "mbti": "INTJ",
+   "age": 44
+  },
+  {
+   "id": 12,
+   "name": "Dr. Henrik Voss",
+   "username": "henrik_voss",
+   "type": "Scientist",
+   "bio": "Grid engineer. Curtailed wind is wasted wind. Opinions my own.",
+   "persona": "Henrik sees data centers as a way to use surplus renewable power. Enthusiastic, occasionally condescending about 'non-technical' worries.",
+   "stance": "supportive",
+   "sentiment_bias": 0.4,
+   "influence": 1.4,
+   "activity_level": 0.5,
+   "active_hours": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Power systems engineer",
+   "mbti": "ENTP",
+   "age": 51
+  },
+  {
+   "id": 13,
+   "name": "Pete Lund",
+   "username": "old_pete_lund",
+   "type": "Resident",
+   "bio": "Retired fisherman. Walks the flats every morning. Watching, mostly.",
+   "persona": "Pete has seen the cannery boom and bust. He rarely takes sides, and speaks in folksy observations.",
+   "stance": "observer",
+   "sentiment_bias": 0.0,
+   "influence": 0.6,
+   "activity_level": 0.5,
+   "active_hours": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Retired fisherman",
+   "mbti": "ISFP",
+   "age": 74
+  }
+ ],
+ "rounds": [
+  {
+   "round": 0,
+   "day": 1,
+   "hour": 7,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r0-1",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "Big news for Saltmarsh Bay: the council is reviewing a proposal from NorthGrid to build a 40 MW data center on the Old Cannery site. Jobs, tax revenue, and a new fiber backbone. Public hearing Friday 6pm at Town Hall. #SaltmarshBay",
+     "post_id": "twitter:1",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-2",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…",
+     "post_id": "reddit:1",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-3",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "POST",
+     "content": "A 40 MW data center next to the tidal flats? Nobody asked the people who live here. Where will the cooling water come from? Where do the herons go? #NoDataCenter #SaltmarshBay",
+     "post_id": "twitter:2",
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "day": 1,
+   "hour": 7,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r1-1",
+     "platform": "reddit",
+     "agent_id": 1,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:1",
+     "target_agent_id": 2,
+     "target_content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…"
+    },
+    {
+     "id": "r1-2",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "reddit:1",
+     "target_agent_id": 2,
+     "target_content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…"
+    },
+    {
+     "id": "r1-3",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:2",
+     "target_agent_id": 5,
+     "target_content": "A 40 MW data center next to the tidal flats? Nobody asked the people who live here. Where will the cooling water come from? Where do the herons go? #NoDataCenter #SaltmarshBay"
+    },
+    {
+     "id": "r1-4",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "TREND",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r1-5",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "day": 1,
+   "hour": 8,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r2-1",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "POST",
+     "content": "can't sleep. reading about the data center thing. 40 MW is like... a lot? genuinely curious what that means for our power bill",
+     "post_id": "twitter:3",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r2-2",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "COMMENT",
+     "content": "Short answer: nobody has published the grid-impact study. Ask for it at Friday's hearing.",
+     "post_id": "twitter:3",
+     "target_agent_id": 8,
+     "target_content": "can't sleep. reading about the data center thing. 40 MW is like... a lot? genuinely curious what that means for our power bill"
+    },
+    {
+     "id": "r2-3",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:2",
+     "target_agent_id": 5,
+     "target_content": "A 40 MW data center next to the tidal flats? Nobody asked the people who live here. Where will the cooling water come from? Where do the herons go? #NoDataCenter #SaltmarshBay"
+    },
+    {
+     "id": "r2-4",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:1",
+     "target_agent_id": 3,
+     "target_content": "Big news for Saltmarsh Bay: the council is reviewing a proposal from NorthGrid to build a 40 MW data center on the Old Cannery site. Jobs, tax revenue, and a new fiber backbone. Public hearing Friday 6pm at Town Hall. #SaltmarshBay"
+    },
+    {
+     "id": "r2-5",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "SEARCH",
+     "content": "Old Cannery site",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "day": 1,
+   "hour": 9,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r3-1",
+     "platform": "reddit",
+     "agent_id": 5,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "reddit:1",
+     "target_agent_id": 2,
+     "target_content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…"
+    },
+    {
+     "id": "r3-2",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "Working on follow-ups for the data center story. If you have documents or questions for Friday's hearing, DMs are open. I'll check everything before I publish it.",
+     "post_id": "twitter:4",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r3-3",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 2,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "day": 1,
+   "hour": 10,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r4-1",
+     "platform": "reddit",
+     "agent_id": 5,
+     "type": "POST",
+     "content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…",
+     "post_id": "reddit:2",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r4-2",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "COMMENT",
+     "content": "Signing the Tide Watch letter. I can print flyers at the library tomorrow.",
+     "post_id": "reddit:2",
+     "target_agent_id": 5,
+     "target_content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…"
+    },
+    {
+     "id": "r4-3",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:4",
+     "target_agent_id": 2,
+     "target_content": "Working on follow-ups for the data center story. If you have documents or questions for Friday's hearing, DMs are open. I'll check everything before I publish it."
+    },
+    {
+     "id": "r4-4",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 8,
+     "target_content": "can't sleep. reading about the data center thing. 40 MW is like... a lot? genuinely curious what that means for our power bill"
+    },
+    {
+     "id": "r4-5",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:4",
+     "target_agent_id": 2,
+     "target_content": "Working on follow-ups for the data center story. If you have documents or questions for Friday's hearing, DMs are open. I'll check everything before I publish it."
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "day": 1,
+   "hour": 11,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r5-1",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "POST",
+     "content": "Up at 4 like always. Tide's out and the mudflats smell like salt and herring. Hope they don't pave over my morning walk.",
+     "post_id": "twitter:5",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r5-2",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:5",
+     "target_agent_id": 13,
+     "target_content": "Up at 4 like always. Tide's out and the mudflats smell like salt and herring. Hope they don't pave over my morning walk."
+    },
+    {
+     "id": "r5-3",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 5,
+     "target_content": "Short answer: nobody has published the grid-impact study. Ask for it at Friday's hearing."
+    }
+   ]
+  },
+  {
+   "round": 6,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r6-1",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:2",
+     "target_agent_id": 7,
+     "target_content": "Signing the Tide Watch letter. I can print flyers at the library tomorrow."
+    },
+    {
+     "id": "r6-2",
+     "platform": "reddit",
+     "agent_id": 10,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 12,
+     "target_content": null
+    },
+    {
+     "id": "r6-3",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "POST",
+     "content": "Opened the shop at 5. A data center on Cannery Road means ~300 truck trips a week during construction. Anyone seen the traffic study? Asking for the boats and the school buses both.",
+     "post_id": "twitter:6",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r6-4",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 10,
+     "target_content": null
+    },
+    {
+     "id": "r6-5",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 8,
+     "target_content": "can't sleep. reading about the data center thing. 40 MW is like... a lot? genuinely curious what that means for our power bill"
+    },
+    {
+     "id": "r6-6",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 5,
+     "target_content": "Short answer: nobody has published the grid-impact study. Ask for it at Friday's hearing."
+    },
+    {
+     "id": "r6-7",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:6",
+     "target_agent_id": 10,
+     "target_content": "Opened the shop at 5. A data center on Cannery Road means ~300 truck trips a week during construction. Anyone seen the traffic study? Asking for the boats and the school buses both."
+    },
+    {
+     "id": "r6-8",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "SEARCH",
+     "content": "Saltmarsh hearing Friday",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 7,
+   "day": 1,
+   "hour": 13,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r7-1",
+     "platform": "reddit",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r7-2",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "POST",
+     "content": "Morning! Petition against the data center: 212 signatures already. Link in bio. Clean energy yes, backroom deals no. #SaveSaltmarsh",
+     "post_id": "twitter:7",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r7-3",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:7",
+     "target_agent_id": 7,
+     "target_content": "Morning! Petition against the data center: 212 signatures already. Link in bio. Clean energy yes, backroom deals no. #SaveSaltmarsh"
+    },
+    {
+     "id": "r7-4",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "POST",
+     "content": "Night shift at the cannery freezer ending. Honest question: where are the jobs if not projects like this? 120 permanent jobs is not nothing. #SaltmarshBay",
+     "post_id": "twitter:9",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r7-5",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "COMMENT",
+     "content": "Amen, Tom. Come by the diner, breakfast is on me.",
+     "post_id": "twitter:9",
+     "target_agent_id": 1,
+     "target_content": "Night shift at the cannery freezer ending. Honest question: where are the jobs if not projects like this? 120 permanent jobs is not nothing. #SaltmarshBay"
+    },
+    {
+     "id": "r7-6",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "TREND",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r7-7",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "SEARCH",
+     "content": "aquifer water use",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 8,
+   "day": 1,
+   "hour": 14,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r8-1",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "I live 400 meters from the site and nobody sent me a notice. I teach second grade, I do not have time to read zoning filings. Why is this the first time we are hearing about it?",
+     "post_id": "reddit:1",
+     "target_agent_id": 2,
+     "target_content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…"
+    },
+    {
+     "id": "r8-2",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:2",
+     "target_agent_id": 5,
+     "target_content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…"
+    },
+    {
+     "id": "r8-3",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "POST",
+     "content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!",
+     "post_id": "twitter:10",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r8-4",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "Reminder: the hearing is Friday 6pm at Town Hall. All voices welcome, and written comments are open until Thursday. #SaltmarshBay",
+     "post_id": "twitter:11",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r8-5",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r8-6",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:6",
+     "target_agent_id": 10,
+     "target_content": "Opened the shop at 5. A data center on Cannery Road means ~300 truck trips a week during construction. Anyone seen the traffic study? Asking for the boats and the school buses both."
+    },
+    {
+     "id": "r8-7",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r8-8",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 5,
+     "target_content": "Short answer: nobody has published the grid-impact study. Ask for it at Friday's hearing."
+    },
+    {
+     "id": "r8-9",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:6",
+     "target_agent_id": 10,
+     "target_content": "Opened the shop at 5. A data center on Cannery Road means ~300 truck trips a week during construction. Anyone seen the traffic study? Asking for the boats and the school buses both."
+    },
+    {
+     "id": "r8-10",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:9",
+     "target_agent_id": 1,
+     "target_content": "Night shift at the cannery freezer ending. Honest question: where are the jobs if not projects like this? 120 permanent jobs is not nothing. #SaltmarshBay"
+    },
+    {
+     "id": "r8-11",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r8-12",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 9,
+   "day": 1,
+   "hour": 15,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r9-1",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r9-2",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "QUOTE",
+     "content": "If this is true we need answers NOW. @mayor_whitlock what is the water plan?",
+     "post_id": "twitter:13",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r9-3",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "COMMENT",
+     "content": "Modern data centers typically use closed-loop cooling. 2M gallons/day sounds like an old evaporative design. Has anyone seen the actual permit application?",
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r9-4",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "POST",
+     "content": "The council has not yet received a water-use filing from NorthGrid. I will post it here the moment we do.",
+     "post_id": "twitter:14",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r9-5",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 12,
+     "target_content": "Modern data centers typically use closed-loop cooling. 2M gallons/day sounds like an old evaporative design. Has anyone seen the actual permit application?"
+    },
+    {
+     "id": "r9-6",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r9-7",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r9-8",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:9",
+     "target_agent_id": 9,
+     "target_content": "Amen, Tom. Come by the diner, breakfast is on me."
+    },
+    {
+     "id": "r9-9",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:11",
+     "target_agent_id": 3,
+     "target_content": "Reminder: the hearing is Friday 6pm at Town Hall. All voices welcome, and written comments are open until Thursday. #SaltmarshBay"
+    },
+    {
+     "id": "r9-10",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r9-11",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:2",
+     "target_agent_id": 5,
+     "target_content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…"
+    },
+    {
+     "id": "r9-12",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:1",
+     "target_agent_id": 0,
+     "target_content": "I live 400 meters from the site and nobody sent me a notice. I teach second grade, I do not have time to read zoning filings. Why is this the first time we are hearing about it?"
+    }
+   ]
+  },
+  {
+   "round": 10,
+   "day": 1,
+   "hour": 16,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r10-1",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "POST",
+     "content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay",
+     "post_id": "twitter:16",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r10-2",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:16",
+     "target_agent_id": 9,
+     "target_content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay"
+    },
+    {
+     "id": "r10-3",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "COMMENT",
+     "content": "Checking this: NorthGrid's filing mentions closed-loop cooling but I have asked for the water-supply agreement. Will report what I find, not what I heard.",
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r10-4",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 2,
+     "target_content": "Checking this: NorthGrid's filing mentions closed-loop cooling but I have asked for the water-supply agreement. Will report what I find, not what I heard."
+    },
+    {
+     "id": "r10-5",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:9",
+     "target_agent_id": 9,
+     "target_content": "Amen, Tom. Come by the diner, breakfast is on me."
+    },
+    {
+     "id": "r10-6",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 5,
+     "target_content": "Short answer: nobody has published the grid-impact study. Ask for it at Friday's hearing."
+    },
+    {
+     "id": "r10-7",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:7",
+     "target_agent_id": 7,
+     "target_content": "Morning! Petition against the data center: 212 signatures already. Link in bio. Clean energy yes, backroom deals no. #SaveSaltmarsh"
+    },
+    {
+     "id": "r10-8",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "POST",
+     "content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated.",
+     "post_id": "reddit:3",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r10-9",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r10-10",
+     "platform": "reddit",
+     "agent_id": 4,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:2",
+     "target_agent_id": 5,
+     "target_content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…"
+    }
+   ]
+  },
+  {
+   "round": 11,
+   "day": 1,
+   "hour": 17,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r11-1",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r11-2",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "SEARCH",
+     "content": "Greg Hallam",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r11-3",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:11",
+     "target_agent_id": 3,
+     "target_content": "Reminder: the hearing is Friday 6pm at Town Hall. All voices welcome, and written comments are open until Thursday. #SaltmarshBay"
+    },
+    {
+     "id": "r11-4",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:16",
+     "target_agent_id": 9,
+     "target_content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay"
+    },
+    {
+     "id": "r11-5",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:13",
+     "target_agent_id": 7,
+     "target_content": "If this is true we need answers NOW. @mayor_whitlock what is the water plan?"
+    },
+    {
+     "id": "r11-6",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 12,
+     "target_content": "Modern data centers typically use closed-loop cooling. 2M gallons/day sounds like an old evaporative design. Has anyone seen the actual permit application?"
+    },
+    {
+     "id": "r11-7",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:13",
+     "target_agent_id": 7,
+     "target_content": "If this is true we need answers NOW. @mayor_whitlock what is the water plan?"
+    },
+    {
+     "id": "r11-8",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "COMMENT",
+     "content": "Hydrogeologist here. Closed-loop systems use a small fraction of the 2M gallon figure, but the aquifer question is still real: construction dewatering and emergency backup cooling are separate. Ask for the water-supply agreement and monitoring wells.",
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r11-9",
+     "platform": "reddit",
+     "agent_id": 10,
+     "type": "COMMENT",
+     "content": "Add traffic to the list. 300 trucks a week on a road that floods at spring tides.",
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r11-10",
+     "platform": "reddit",
+     "agent_id": 3,
+     "type": "COMMENT",
+     "content": "Mayor here. I'm reading this thread. The town will publish every NorthGrid document received. Process first, vote second.",
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r11-11",
+     "platform": "reddit",
+     "agent_id": 13,
+     "type": "COMMENT",
+     "content": "Back when the cannery ran, the whole town smelled of fish and nobody complained. Jobs mattered more. But we also drained the creek. Both things are true.",
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r11-12",
+     "platform": "reddit",
+     "agent_id": 6,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 11,
+     "target_content": "Hydrogeologist here. Closed-loop systems use a small fraction of the 2M gallon figure, but the aquifer question is still real: construction dewatering and emergency backup cooling are separate. Ask for the water-supply agreement and monitoring wells."
+    },
+    {
+     "id": "r11-13",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    }
+   ]
+  },
+  {
+   "round": 12,
+   "day": 1,
+   "hour": 18,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r12-1",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay",
+     "post_id": "twitter:18",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r12-2",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "QUOTE",
+     "content": "This is exactly what we feared. A deal made in a back room, then a 'public hearing' to rubber-stamp it. #NoDataCenter",
+     "post_id": "twitter:19",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r12-3",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:18",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r12-4",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:18",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r12-5",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:14",
+     "target_agent_id": 4,
+     "target_content": "The council has not yet received a water-use filing from NorthGrid. I will post it here the moment we do."
+    },
+    {
+     "id": "r12-6",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:16",
+     "target_agent_id": 9,
+     "target_content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay"
+    },
+    {
+     "id": "r12-7",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 9,
+     "target_content": null
+    },
+    {
+     "id": "r12-8",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r12-9",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:9",
+     "target_agent_id": 1,
+     "target_content": "Night shift at the cannery freezer ending. Honest question: where are the jobs if not projects like this? 120 permanent jobs is not nothing. #SaltmarshBay"
+    },
+    {
+     "id": "r12-10",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 2,
+     "target_content": null
+    },
+    {
+     "id": "r12-11",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:16",
+     "target_agent_id": 9,
+     "target_content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay"
+    },
+    {
+     "id": "r12-12",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:7",
+     "target_agent_id": 7,
+     "target_content": "Morning! Petition against the data center: 212 signatures already. Link in bio. Clean energy yes, backroom deals no. #SaveSaltmarsh"
+    },
+    {
+     "id": "r12-13",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r12-14",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…",
+     "post_id": "reddit:4",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r12-15",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "COMMENT",
+     "content": "Wait, so the councilman who is supposed to be neutral had meetings no one knew about? That's... not great.",
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r12-16",
+     "platform": "reddit",
+     "agent_id": 10,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 13,
+   "day": 1,
+   "hour": 19,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r13-1",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "I was not aware of any private meetings. I have asked the town attorney to review all disclosures and will report back. Process matters, and so does trust. #SaltmarshBay",
+     "post_id": "twitter:22",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r13-2",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "POST",
+     "content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear.",
+     "post_id": "twitter:23",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r13-3",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "COMMENT",
+     "content": "Verbally? Where is the record? The public can't attend a verbal disclosure.",
+     "post_id": "twitter:23",
+     "target_agent_id": 4,
+     "target_content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear."
+    },
+    {
+     "id": "r13-4",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "COMMENT",
+     "content": "One meeting isn't corruption. Wait for facts before burning a man's name.",
+     "post_id": "twitter:23",
+     "target_agent_id": 4,
+     "target_content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear."
+    },
+    {
+     "id": "r13-5",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "SEARCH",
+     "content": "Hallam Rowe Excavation NorthGrid",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r13-6",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:23",
+     "target_agent_id": 4,
+     "target_content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear."
+    },
+    {
+     "id": "r13-7",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:23",
+     "target_agent_id": 4,
+     "target_content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear."
+    },
+    {
+     "id": "r13-8",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "I am a teacher, I disclose every gift over $20. A councilman can write down a meeting.",
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r13-9",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:14",
+     "target_agent_id": 4,
+     "target_content": "The council has not yet received a water-use filing from NorthGrid. I will post it here the moment we do."
+    },
+    {
+     "id": "r13-10",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:11",
+     "target_agent_id": 3,
+     "target_content": "Reminder: the hearing is Friday 6pm at Town Hall. All voices welcome, and written comments are open until Thursday. #SaltmarshBay"
+    },
+    {
+     "id": "r13-11",
+     "platform": "reddit",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r13-12",
+     "platform": "reddit",
+     "agent_id": 6,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r13-13",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:23",
+     "target_agent_id": 4,
+     "target_content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear."
+    }
+   ]
+  },
+  {
+   "round": 14,
+   "day": 1,
+   "hour": 20,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r14-1",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "MUTE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 6,
+     "target_content": null
+    },
+    {
+     "id": "r14-2",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "POST",
+     "content": "Whatever one thinks of the politics, the grid case is real: the region curtails about 12% of wind output a year. A flexible load like a data center can soak that up. This is solvable with good siting and a binding efficiency standard.",
+     "post_id": "twitter:24",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r14-3",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "COMMENT",
+     "content": "Fair point on curtailment. But 'flexible load' is a promise, not a contract. Ask NorthGrid to commit in writing to demand-response terms.",
+     "post_id": "twitter:24",
+     "target_agent_id": 12,
+     "target_content": "Whatever one thinks of the politics, the grid case is real: the region curtails about 12% of wind output a year. A flexible load like a data center can soak that up. This is solvable with good siting and a binding efficiency standard."
+    },
+    {
+     "id": "r14-4",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:24",
+     "target_agent_id": 11,
+     "target_content": "Fair point on curtailment. But 'flexible load' is a promise, not a contract. Ask NorthGrid to commit in writing to demand-response terms."
+    },
+    {
+     "id": "r14-5",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r14-6",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:18",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r14-7",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:24",
+     "target_agent_id": 12,
+     "target_content": "Whatever one thinks of the politics, the grid case is real: the region curtails about 12% of wind output a year. A flexible load like a data center can soak that up. This is solvable with good siting and a binding efficiency standard."
+    },
+    {
+     "id": "r14-8",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r14-9",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 0,
+     "target_content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!"
+    },
+    {
+     "id": "r14-10",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:10",
+     "target_agent_id": 2,
+     "target_content": "Checking this: NorthGrid's filing mentions closed-loop cooling but I have asked for the water-supply agreement. Will report what I find, not what I heard."
+    },
+    {
+     "id": "r14-11",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:24",
+     "target_agent_id": 12,
+     "target_content": "Whatever one thinks of the politics, the grid case is real: the region curtails about 12% of wind output a year. A flexible load like a data center can soak that up. This is solvable with good siting and a binding efficiency standard."
+    },
+    {
+     "id": "r14-12",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "MUTE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 5,
+     "target_content": null
+    },
+    {
+     "id": "r14-13",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    }
+   ]
+  },
+  {
+   "round": 15,
+   "day": 1,
+   "hour": 21,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r15-1",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:4",
+     "target_agent_id": 8,
+     "target_content": "Wait, so the councilman who is supposed to be neutral had meetings no one knew about? That's... not great."
+    },
+    {
+     "id": "r15-2",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:2",
+     "target_agent_id": 7,
+     "target_content": "Signing the Tide Watch letter. I can print flyers at the library tomorrow."
+    },
+    {
+     "id": "r15-3",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 7,
+     "target_content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated."
+    },
+    {
+     "id": "r15-4",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "POST",
+     "content": "I will recuse myself from all votes and deliberations on the NorthGrid proposal pending the town attorney's review. I should have documented the March meeting. That's on me.",
+     "post_id": "twitter:25",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r15-5",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "COMMENT",
+     "content": "Noted. The Bay Courier will keep covering the review. Documents are posted at the link in my bio.",
+     "post_id": "twitter:25",
+     "target_agent_id": 4,
+     "target_content": "I will recuse myself from all votes and deliberations on the NorthGrid proposal pending the town attorney's review. I should have documented the March meeting. That's on me."
+    },
+    {
+     "id": "r15-6",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "COMMENT",
+     "content": "Recusal is a start but not enough. The whole process needs a reset, not just one seat.",
+     "post_id": "twitter:25",
+     "target_agent_id": 4,
+     "target_content": "I will recuse myself from all votes and deliberations on the NorthGrid proposal pending the town attorney's review. I should have documented the March meeting. That's on me."
+    },
+    {
+     "id": "r15-7",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "POST",
+     "content": "A man owning up is worth more than ten men explaining. Hope the rest of us can do the same.",
+     "post_id": "twitter:26",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r15-8",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:25",
+     "target_agent_id": 4,
+     "target_content": "I will recuse myself from all votes and deliberations on the NorthGrid proposal pending the town attorney's review. I should have documented the March meeting. That's on me."
+    },
+    {
+     "id": "r15-9",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r15-10",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r15-11",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:13",
+     "target_agent_id": 7,
+     "target_content": "If this is true we need answers NOW. @mayor_whitlock what is the water plan?"
+    }
+   ]
+  },
+  {
+   "round": 16,
+   "day": 1,
+   "hour": 22,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r16-1",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "POST",
+     "content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…",
+     "post_id": "reddit:5",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r16-2",
+     "platform": "reddit",
+     "agent_id": 12,
+     "type": "COMMENT",
+     "content": "Agree with the figures, though I would argue generator hours can be capped by permit. Let's ask for that.",
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r16-3",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "Thank you. So the 2 million figure was wrong?",
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r16-4",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "COMMENT",
+     "content": "Almost certainly wrong for normal operation. Construction and emergency modes are the real questions.",
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r16-5",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "POST",
+     "content": "Correction: the 2 million gallons/day claim I shared appears to be wrong. Still want monitoring wells and a real hearing. I'd rather be accurate than loud.",
+     "post_id": "twitter:27",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r16-6",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:27",
+     "target_agent_id": 0,
+     "target_content": "Correction: the 2 million gallons/day claim I shared appears to be wrong. Still want monitoring wells and a real hearing. I'd rather be accurate than loud."
+    },
+    {
+     "id": "r16-7",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:27",
+     "target_agent_id": 0,
+     "target_content": "Correction: the 2 million gallons/day claim I shared appears to be wrong. Still want monitoring wells and a real hearing. I'd rather be accurate than loud."
+    },
+    {
+     "id": "r16-8",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r16-9",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:18",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r16-10",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r16-11",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:26",
+     "target_agent_id": 13,
+     "target_content": "A man owning up is worth more than ten men explaining. Hope the rest of us can do the same."
+    },
+    {
+     "id": "r16-12",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 17,
+   "day": 1,
+   "hour": 23,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r17-1",
+     "platform": "reddit",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r17-2",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r17-3",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "POST",
+     "content": "Student rally tonight 7pm on the Town Hall steps. Clean energy yes, backroom deals no. Bring signs, bring friends, bring thermoses. #SaveSaltmarsh",
+     "post_id": "twitter:29",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r17-4",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "QUOTE",
+     "content": "Count me in. Also bringing coffee for whoever's standing outside.",
+     "post_id": "twitter:30",
+     "target_agent_id": 7,
+     "target_content": "Student rally tonight 7pm on the Town Hall steps. Clean energy yes, backroom deals no. Bring signs, bring friends, bring thermoses. #SaveSaltmarsh"
+    },
+    {
+     "id": "r17-5",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "POST",
+     "content": "Business owners: let's meet at the diner Wednesday 7am. Hear NorthGrid out, ask hard questions. Coffee and pie on me.",
+     "post_id": "twitter:31",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r17-6",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "COMMENT",
+     "content": "I'll be there, Rita. With a list.",
+     "post_id": "twitter:31",
+     "target_agent_id": 9,
+     "target_content": "Business owners: let's meet at the diner Wednesday 7am. Hear NorthGrid out, ask hard questions. Coffee and pie on me."
+    },
+    {
+     "id": "r17-7",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:29",
+     "target_agent_id": 7,
+     "target_content": "Student rally tonight 7pm on the Town Hall steps. Clean energy yes, backroom deals no. Bring signs, bring friends, bring thermoses. #SaveSaltmarsh"
+    },
+    {
+     "id": "r17-8",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:9",
+     "target_agent_id": 9,
+     "target_content": "Amen, Tom. Come by the diner, breakfast is on me."
+    },
+    {
+     "id": "r17-9",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "SEARCH",
+     "content": "Greg Hallam",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r17-10",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:19",
+     "target_agent_id": 5,
+     "target_content": "This is exactly what we feared. A deal made in a back room, then a 'public hearing' to rubber-stamp it. #NoDataCenter"
+    },
+    {
+     "id": "r17-11",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:22",
+     "target_agent_id": 3,
+     "target_content": "I was not aware of any private meetings. I have asked the town attorney to review all disclosures and will report back. Process matters, and so does trust. #SaltmarshBay"
+    }
+   ]
+  },
+  {
+   "round": 18,
+   "day": 2,
+   "hour": 0,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r18-1",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "COMMENT",
+     "content": "Follow-up: the mayor's office confirms the reviewer will be chosen by a three-person panel (one town, one university, one resident). I'll post the names when I have them.",
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r18-2",
+     "platform": "reddit",
+     "agent_id": 13,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:4",
+     "target_agent_id": 2,
+     "target_content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…"
+    },
+    {
+     "id": "r18-3",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r18-4",
+     "platform": "reddit",
+     "agent_id": 6,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r18-5",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "TREND",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r18-6",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay",
+     "post_id": "twitter:32",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r18-7",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "COMMENT",
+     "content": "An independent review is good. Who picks the reviewer, and who pays them?",
+     "post_id": "twitter:32",
+     "target_agent_id": 3,
+     "target_content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay"
+    },
+    {
+     "id": "r18-8",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:32",
+     "target_agent_id": 3,
+     "target_content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay"
+    },
+    {
+     "id": "r18-9",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:32",
+     "target_agent_id": 3,
+     "target_content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay"
+    },
+    {
+     "id": "r18-10",
+     "platform": "twitter",
+     "agent_id": 11,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r18-11",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:18",
+     "target_agent_id": 2,
+     "target_content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay"
+    },
+    {
+     "id": "r18-12",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 19,
+   "day": 2,
+   "hour": 1,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r19-1",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r19-2",
+     "platform": "reddit",
+     "agent_id": 6,
+     "type": "POST",
+     "content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…",
+     "post_id": "reddit:6",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r19-3",
+     "platform": "reddit",
+     "agent_id": 1,
+     "type": "COMMENT",
+     "content": "Finally something I can get behind. I'd add apprenticeship slots for the high school.",
+     "post_id": "reddit:6",
+     "target_agent_id": 6,
+     "target_content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…"
+    },
+    {
+     "id": "r19-4",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "COMMENT",
+     "content": "Add: publish monthly water-use and temperature data. Transparency is cheap if the numbers are good.",
+     "post_id": "reddit:6",
+     "target_agent_id": 6,
+     "target_content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…"
+    },
+    {
+     "id": "r19-5",
+     "platform": "reddit",
+     "agent_id": 10,
+     "type": "COMMENT",
+     "content": "Add: truck routes away from the harbor road. Put that in writing.",
+     "post_id": "reddit:6",
+     "target_agent_id": 6,
+     "target_content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…"
+    },
+    {
+     "id": "r19-6",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "SEARCH",
+     "content": "aquifer water use",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r19-7",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 9,
+     "target_content": null
+    },
+    {
+     "id": "r19-8",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 11,
+     "target_content": null
+    },
+    {
+     "id": "r19-9",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r19-10",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:27",
+     "target_agent_id": 0,
+     "target_content": "Correction: the 2 million gallons/day claim I shared appears to be wrong. Still want monitoring wells and a real hearing. I'd rather be accurate than loud."
+    },
+    {
+     "id": "r19-11",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:31",
+     "target_agent_id": 9,
+     "target_content": "Business owners: let's meet at the diner Wednesday 7am. Hear NorthGrid out, ask hard questions. Coffee and pie on me."
+    },
+    {
+     "id": "r19-12",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:29",
+     "target_agent_id": 7,
+     "target_content": "Student rally tonight 7pm on the Town Hall steps. Clean energy yes, backroom deals no. Bring signs, bring friends, bring thermoses. #SaveSaltmarsh"
+    },
+    {
+     "id": "r19-13",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:32",
+     "target_agent_id": 3,
+     "target_content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay"
+    },
+    {
+     "id": "r19-14",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:23",
+     "target_agent_id": 1,
+     "target_content": "One meeting isn't corruption. Wait for facts before burning a man's name."
+    }
+   ]
+  },
+  {
+   "round": 20,
+   "day": 2,
+   "hour": 2,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r20-1",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "POST",
+     "content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie.",
+     "post_id": "twitter:33",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r20-2",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:33",
+     "target_agent_id": 13,
+     "target_content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie."
+    },
+    {
+     "id": "r20-3",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:33",
+     "target_agent_id": 13,
+     "target_content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie."
+    },
+    {
+     "id": "r20-4",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:33",
+     "target_agent_id": 13,
+     "target_content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie."
+    },
+    {
+     "id": "r20-5",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "POST",
+     "content": "Reminder to everyone worried about generator noise: tested generators can be required to run 2 hours a month in daytime. That's a permit condition, not a miracle.",
+     "post_id": "twitter:35",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r20-6",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 6,
+     "target_content": null
+    },
+    {
+     "id": "r20-7",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:32",
+     "target_agent_id": 3,
+     "target_content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay"
+    },
+    {
+     "id": "r20-8",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:26",
+     "target_agent_id": 13,
+     "target_content": "A man owning up is worth more than ten men explaining. Hope the rest of us can do the same."
+    },
+    {
+     "id": "r20-9",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r20-10",
+     "platform": "reddit",
+     "agent_id": 3,
+     "type": "COMMENT",
+     "content": "Mayor here. We will add a Community Benefits Agreement item to the hearing agenda. Thank you, Jonas.",
+     "post_id": "reddit:6",
+     "target_agent_id": 6,
+     "target_content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…"
+    },
+    {
+     "id": "r20-11",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r20-12",
+     "platform": "reddit",
+     "agent_id": 12,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    }
+   ]
+  },
+  {
+   "round": 21,
+   "day": 2,
+   "hour": 3,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r21-1",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay",
+     "post_id": "twitter:36",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r21-2",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:36",
+     "target_agent_id": 2,
+     "target_content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay"
+    },
+    {
+     "id": "r21-3",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:36",
+     "target_agent_id": 2,
+     "target_content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay"
+    },
+    {
+     "id": "r21-4",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:36",
+     "target_agent_id": 2,
+     "target_content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay"
+    },
+    {
+     "id": "r21-5",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:36",
+     "target_agent_id": 2,
+     "target_content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay"
+    },
+    {
+     "id": "r21-6",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "TREND",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r21-7",
+     "platform": "reddit",
+     "agent_id": 4,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r21-8",
+     "platform": "reddit",
+     "agent_id": 9,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r21-9",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:6",
+     "target_agent_id": 6,
+     "target_content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…"
+    }
+   ]
+  },
+  {
+   "round": 22,
+   "day": 2,
+   "hour": 4,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r22-1",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay",
+     "post_id": "twitter:39",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r22-2",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "COMMENT",
+     "content": "Cautious win. We'll be watching the review as hard as we watched the rumor mill.",
+     "post_id": "twitter:39",
+     "target_agent_id": 3,
+     "target_content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay"
+    },
+    {
+     "id": "r22-3",
+     "platform": "twitter",
+     "agent_id": 12,
+     "type": "COMMENT",
+     "content": "Delay has a cost, but a defensible decision is worth it. Fine by me.",
+     "post_id": "twitter:39",
+     "target_agent_id": 3,
+     "target_content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay"
+    },
+    {
+     "id": "r22-4",
+     "platform": "twitter",
+     "agent_id": 10,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:39",
+     "target_agent_id": 3,
+     "target_content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay"
+    },
+    {
+     "id": "r22-5",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:39",
+     "target_agent_id": 3,
+     "target_content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay"
+    },
+    {
+     "id": "r22-6",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 3,
+     "target_content": null
+    },
+    {
+     "id": "r22-7",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r22-8",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:33",
+     "target_agent_id": 13,
+     "target_content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie."
+    },
+    {
+     "id": "r22-9",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r22-10",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:30",
+     "target_agent_id": 8,
+     "target_content": "Count me in. Also bringing coffee for whoever's standing outside."
+    },
+    {
+     "id": "r22-11",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r22-12",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:5",
+     "target_agent_id": 11,
+     "target_content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…"
+    },
+    {
+     "id": "r22-13",
+     "platform": "reddit",
+     "agent_id": 1,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 13,
+     "target_content": "Back when the cannery ran, the whole town smelled of fish and nobody complained. Jobs mattered more. But we also drained the creek. Both things are true."
+    }
+   ]
+  },
+  {
+   "round": 23,
+   "day": 2,
+   "hour": 5,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r23-1",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "POST",
+     "content": "weird feeling: I came into this thinking it was a tech thing and it turned out to be a how-do-we-decide-things thing. Going to try to write that up for the student paper.",
+     "post_id": "twitter:40",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r23-2",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 11,
+     "target_content": null
+    },
+    {
+     "id": "r23-3",
+     "platform": "twitter",
+     "agent_id": 13,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:40",
+     "target_agent_id": 8,
+     "target_content": "weird feeling: I came into this thinking it was a tech thing and it turned out to be a how-do-we-decide-things thing. Going to try to write that up for the student paper."
+    },
+    {
+     "id": "r23-4",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "twitter:39",
+     "target_agent_id": 3,
+     "target_content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay"
+    },
+    {
+     "id": "r23-5",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "SEARCH",
+     "content": "NorthGrid data center",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r23-6",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r23-7",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "IDLE",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r23-8",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "SEARCH",
+     "content": "Old Cannery site",
+     "post_id": null,
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r23-9",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:3",
+     "target_agent_id": 13,
+     "target_content": "Back when the cannery ran, the whole town smelled of fish and nobody complained. Jobs mattered more. But we also drained the creek. Both things are true."
+    }
+   ]
+  },
+  {
+   "round": 24,
+   "day": 2,
+   "hour": 6,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r24-1",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:31",
+     "target_agent_id": 10,
+     "target_content": "I'll be there, Rita. With a list."
+    },
+    {
+     "id": "r24-2",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…",
+     "post_id": "reddit:7",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r24-3",
+     "platform": "reddit",
+     "agent_id": 11,
+     "type": "COMMENT",
+     "content": "Thank you for including the corrections. That's what keeps a town's information honest.",
+     "post_id": "reddit:7",
+     "target_agent_id": 2,
+     "target_content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…"
+    },
+    {
+     "id": "r24-4",
+     "platform": "reddit",
+     "agent_id": 1,
+     "type": "COMMENT",
+     "content": "Still hoping for the jobs. But I'll take a process I can trust.",
+     "post_id": "reddit:7",
+     "target_agent_id": 2,
+     "target_content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…"
+    },
+    {
+     "id": "r24-5",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:7",
+     "target_agent_id": 2,
+     "target_content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…"
+    },
+    {
+     "id": "r24-6",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "DISLIKE",
+     "content": null,
+     "post_id": "reddit:7",
+     "target_agent_id": 2,
+     "target_content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…"
+    }
+   ]
+  }
+ ],
+ "posts": {
+  "reddit:1": {
+   "author_id": 2,
+   "content": "Explainer: what we know about the proposed NorthGrid data center at the Old Cannery site. NorthGrid filed a 40 MW project with the planning office: roughly 120 permanent jobs, $2.1M a year in property tax, construction of about 18 months. Open questions: water supply for cooling…",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 2,
+   "shares": 0,
+   "comments": 1
+  },
+  "reddit:2": {
+   "author_id": 5,
+   "content": "Why I oppose the Old Cannery data center (long post). The site sits 200 m from the tidal flats, a feeding ground for herons and shorebirds. Construction means pile driving, dewatering, and about 300 truck trips a week. Operation means 24/7 noise from chillers and diesel backup t…",
+   "round": 4,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "reddit:3": {
+   "author_id": 7,
+   "content": "Megathread: the data center - what's confirmed, what's rumor, what's still unknown. Please source your claims. I'll keep the top comment updated.",
+   "round": 10,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 4
+  },
+  "reddit:4": {
+   "author_id": 2,
+   "content": "Bay Courier investigation: Hallam met NorthGrid before the public did. Full documents attached to the story: March calendar entries, an email from NorthGrid's land agent thanking the councilman for 'early guidance', and a subcontractor list naming Hallam & Rowe Excavation, owned…",
+   "round": 12,
+   "likes": 4,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 3
+  },
+  "reddit:5": {
+   "author_id": 11,
+   "content": "Ran the numbers on the aquifer. Using NorthGrid's filed design, closed-loop cooling needs roughly 15,000-40,000 gallons/day of make-up water, about 1-2% of the rumored 2M. That claim is almost certainly wrong. What is NOT trivial: (1) dewatering during construction, (2) the 11 d…",
+   "round": 16,
+   "likes": 5,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 3
+  },
+  "reddit:6": {
+   "author_id": 6,
+   "content": "Proposal: a Community Benefits Agreement checklist for any data center. (1) Local hiring floor of 60%. (2) Written, enforceable water and noise limits. (3) Monitoring wells owned by the town. (4) Generator-test hours capped. (5) Annual public audit. (6) Decommissioning bond. If…",
+   "round": 19,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 4
+  },
+  "reddit:7": {
+   "author_id": 2,
+   "content": "What happened in Saltmarsh Bay these 24 hours: a rumor (2M gallons/day) spread fast and was corrected by its own author. A councilman's undisclosed meeting surfaced and he recused himself. The vote was postponed for an independent review. The data center question is still open.…",
+   "round": 24,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 2
+  },
+  "twitter:1": {
+   "author_id": 3,
+   "content": "Big news for Saltmarsh Bay: the council is reviewing a proposal from NorthGrid to build a 40 MW data center on the Old Cannery site. Jobs, tax revenue, and a new fiber backbone. Public hearing Friday 6pm at Town Hall. #SaltmarshBay",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:2": {
+   "author_id": 5,
+   "content": "A 40 MW data center next to the tidal flats? Nobody asked the people who live here. Where will the cooling water come from? Where do the herons go? #NoDataCenter #SaltmarshBay",
+   "round": 0,
+   "likes": 2,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:3": {
+   "author_id": 8,
+   "content": "can't sleep. reading about the data center thing. 40 MW is like... a lot? genuinely curious what that means for our power bill",
+   "round": 2,
+   "likes": 2,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "twitter:4": {
+   "author_id": 2,
+   "content": "Working on follow-ups for the data center story. If you have documents or questions for Friday's hearing, DMs are open. I'll check everything before I publish it.",
+   "round": 3,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:5": {
+   "author_id": 13,
+   "content": "Up at 4 like always. Tide's out and the mudflats smell like salt and herring. Hope they don't pave over my morning walk.",
+   "round": 5,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:6": {
+   "author_id": 10,
+   "content": "Opened the shop at 5. A data center on Cannery Road means ~300 truck trips a week during construction. Anyone seen the traffic study? Asking for the boats and the school buses both.",
+   "round": 6,
+   "likes": 2,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:7": {
+   "author_id": 7,
+   "content": "Morning! Petition against the data center: 212 signatures already. Link in bio. Clean energy yes, backroom deals no. #SaveSaltmarsh",
+   "round": 7,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:9": {
+   "author_id": 1,
+   "content": "Night shift at the cannery freezer ending. Honest question: where are the jobs if not projects like this? 120 permanent jobs is not nothing. #SaltmarshBay",
+   "round": 7,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 1
+  },
+  "twitter:10": {
+   "author_id": 0,
+   "content": "Heard from my neighbor that the data center will pump 2 MILLION gallons of groundwater a DAY. Our wells will run dry by summer. Please share before Friday!",
+   "round": 8,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 3,
+   "comments": 2
+  },
+  "twitter:11": {
+   "author_id": 3,
+   "content": "Reminder: the hearing is Friday 6pm at Town Hall. All voices welcome, and written comments are open until Thursday. #SaltmarshBay",
+   "round": 8,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:13": {
+   "author_id": 7,
+   "content": "If this is true we need answers NOW. @mayor_whitlock what is the water plan?",
+   "round": 9,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:14": {
+   "author_id": 4,
+   "content": "The council has not yet received a water-use filing from NorthGrid. I will post it here the moment we do.",
+   "round": 9,
+   "likes": 0,
+   "dislikes": 2,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:16": {
+   "author_id": 9,
+   "content": "The diner has lost a third of its lunch crowd since the cannery closed. A data center means 120 families with paychecks. Let's not panic over a Facebook rumor, folks. #SaltmarshBay",
+   "round": 10,
+   "likes": 2,
+   "dislikes": 1,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:18": {
+   "author_id": 2,
+   "content": "BREAKING: Documents obtained by the Bay Courier show Councilman Greg Hallam met privately with NorthGrid executives in March, six weeks before the project was made public. His brother-in-law's firm, Hallam & Rowe Excavation, is listed as a site-prep subcontractor. #SaltmarshBay",
+   "round": 12,
+   "likes": 1,
+   "dislikes": 2,
+   "shares": 3,
+   "comments": 0
+  },
+  "twitter:19": {
+   "author_id": 5,
+   "content": "This is exactly what we feared. A deal made in a back room, then a 'public hearing' to rubber-stamp it. #NoDataCenter",
+   "round": 12,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:22": {
+   "author_id": 3,
+   "content": "I was not aware of any private meetings. I have asked the town attorney to review all disclosures and will report back. Process matters, and so does trust. #SaltmarshBay",
+   "round": 13,
+   "likes": 0,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:23": {
+   "author_id": 4,
+   "content": "The March meeting was a general introduction with a local employer. I mentioned it verbally to colleagues and I have nothing to hide. My brother-in-law's firm bids on every town job. This is a smear.",
+   "round": 13,
+   "likes": 2,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 2
+  },
+  "twitter:24": {
+   "author_id": 12,
+   "content": "Whatever one thinks of the politics, the grid case is real: the region curtails about 12% of wind output a year. A flexible load like a data center can soak that up. This is solvable with good siting and a binding efficiency standard.",
+   "round": 14,
+   "likes": 2,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "twitter:25": {
+   "author_id": 4,
+   "content": "I will recuse myself from all votes and deliberations on the NorthGrid proposal pending the town attorney's review. I should have documented the March meeting. That's on me.",
+   "round": 15,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 2
+  },
+  "twitter:26": {
+   "author_id": 13,
+   "content": "A man owning up is worth more than ten men explaining. Hope the rest of us can do the same.",
+   "round": 15,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:27": {
+   "author_id": 0,
+   "content": "Correction: the 2 million gallons/day claim I shared appears to be wrong. Still want monitoring wells and a real hearing. I'd rather be accurate than loud.",
+   "round": 16,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:29": {
+   "author_id": 7,
+   "content": "Student rally tonight 7pm on the Town Hall steps. Clean energy yes, backroom deals no. Bring signs, bring friends, bring thermoses. #SaveSaltmarsh",
+   "round": 17,
+   "likes": 1,
+   "dislikes": 1,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:30": {
+   "author_id": 8,
+   "content": "Count me in. Also bringing coffee for whoever's standing outside.",
+   "round": 17,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:31": {
+   "author_id": 9,
+   "content": "Business owners: let's meet at the diner Wednesday 7am. Hear NorthGrid out, ask hard questions. Coffee and pie on me.",
+   "round": 17,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "twitter:32": {
+   "author_id": 3,
+   "content": "Announcing an independent review: a third-party engineer will audit NorthGrid's water, traffic, and noise plans. Results public by December 1. The council vote waits for it. #SaltmarshBay",
+   "round": 18,
+   "likes": 3,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 1
+  },
+  "twitter:33": {
+   "author_id": 13,
+   "content": "Went to the diner. Rita's pie, Walt's gripes, Maria's list of questions, Tom's grin. Funny how a town gets along better over pie.",
+   "round": 20,
+   "likes": 3,
+   "dislikes": 0,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:35": {
+   "author_id": 12,
+   "content": "Reminder to everyone worried about generator noise: tested generators can be required to run 2 hours a month in daytime. That's a permit condition, not a miracle.",
+   "round": 20,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:36": {
+   "author_id": 2,
+   "content": "About 150 people on the Town Hall steps tonight. Mostly students, plus teachers, fishermen, a few business owners. Speeches were short, signs were polite, nobody shouted. Photos in thread. #SaltmarshBay",
+   "round": 21,
+   "likes": 2,
+   "dislikes": 0,
+   "shares": 2,
+   "comments": 0
+  },
+  "twitter:39": {
+   "author_id": 3,
+   "content": "The council vote is postponed until the independent review is complete. I'm grateful to everyone who showed up, argued, corrected themselves, and stayed. #SaltmarshBay",
+   "round": 22,
+   "likes": 2,
+   "dislikes": 1,
+   "shares": 0,
+   "comments": 2
+  },
+  "twitter:40": {
+   "author_id": 8,
+   "content": "weird feeling: I came into this thinking it was a tech thing and it turned out to be a how-do-we-decide-things thing. Going to try to write that up for the student paper.",
+   "round": 23,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  }
+ },
+ "follows": [
+  {
+   "from": 8,
+   "to": 2,
+   "round": 3
+  },
+  {
+   "from": 10,
+   "to": 12,
+   "round": 6
+  },
+  {
+   "from": 2,
+   "to": 10,
+   "round": 6
+  },
+  {
+   "from": 11,
+   "to": 9,
+   "round": 12
+  },
+  {
+   "from": 12,
+   "to": 2,
+   "round": 12
+  },
+  {
+   "from": 8,
+   "to": 11,
+   "round": 19
+  },
+  {
+   "from": 5,
+   "to": 6,
+   "round": 20
+  },
+  {
+   "from": 6,
+   "to": 3,
+   "round": 22
+  },
+  {
+   "from": 0,
+   "to": 11,
+   "round": 23
+  }
+ ]
+}

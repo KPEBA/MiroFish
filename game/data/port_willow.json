@@ -1,0 +1,908 @@
+{
+ "version": 1,
+ "meta": {
+  "simulation_id": "sim_d93629fe8876",
+  "title": "Predict how Port Willow residents and groups react on social media to the Harbor Lane nig…",
+  "requirement": "Predict how Port Willow residents and groups react on social media to the Harbor Lane night market proposal over the next days, and whether support or opposition grows before the council vote.",
+  "narrative": "Over the next days, social media debate in Port Willow will intensify around the Harbor Lane night market proposal. Support will grow among university students and young craft makers, amplified by the viral #LightUpHarborLane campaign, while opposition solidifies among elderly residents and restaurant owners, fueled by the 900-signature petition and concerns over noise, parking, and emergency access. The Port Willow Gazette's push for transparency on the noise and safety assessment, along with the fire chief's insistence on open emergency lanes, will keep safety and accountability at the center of the discussion. The Chamber of Commerce's tourism argument will provide a counter-narrative to economic fears. As the council vote approaches, expect a slight overall increase in support due to youth mobilization and the promised three-month trial, but opposition remains vocal and organized, making the outcome uncertain.",
+  "hot_topics": [
+   "Harbor Lane night market",
+   "noise and safety assessment",
+   "petition 900 signatures",
+   "#LightUpHarborLane",
+   "emergency lane access",
+   "lost parking",
+   "tourism boost",
+   "three-month trial",
+   "council vote in two weeks",
+   "cheap food stalls vs restaurants"
+  ],
+  "platforms": [
+   "twitter",
+   "reddit"
+  ],
+  "minutes_per_round": 60,
+  "total_rounds": 8,
+  "start_hour": 8,
+  "source": "mirofish"
+ },
+ "agents": [
+  {
+   "id": 0,
+   "name": "elderly residents",
+   "username": "elderly_residents_427",
+   "type": "ElderlyResident",
+   "bio": "Official account for the Elderly Residents of Harbor Lane, Port Willow. We are a community group advocating for a peaceful living environment and safe",
+   "persona": "The Elderly Residents of Harbor Lane are an informal community group representing senior citizens living in the apartments above the shops on Harbor Lane in Port Willow, a small seaside town of 18,000 people. The group formed in response to the proposed Harbor Lane Night Market, a weekly event with food stalls, live music, and local crafts that would close the street to cars every Friday and Saturday evening. The group's primary concerns are the potential noise until midnight and the blockage of emergency access for ambulances, which they fear could endanger lives. The account serves as a platform to voice these concerns, share information, and mobilize support among like-minded residents. The account is run by a small committee of elderly volunteers, with the help of a tech-savvy grandchild. The tone is polite but firm, often expressing worry and frustration through personal stories and appeals to common sense and safety. They avoid direct confrontation but are persistent in demanding that the city council publish its noise and safety assessment and consider the well-being of elderly residents. The account posts updates on council meetings, shares news articles, and occasionally posts photos of the street and its current quiet state. They are most active in the evenings and early mornings. The group's stance is not against the market per se but demands that the trial include measures to mitigate noise and ensure emergency access, such as earlier closing times and clear emer…",
+   "stance": "opposing",
+   "sentiment_bias": -0.6,
+   "influence": 1.0,
+   "activity_level": 0.5,
+   "active_hours": [
+    7,
+    8,
+    9,
+    17,
+    18,
+    19,
+    20
+   ],
+   "profession": "Community advocacy group for elderly residents",
+   "mbti": "ISFJ",
+   "age": 30
+  },
+  {
+   "id": 1,
+   "name": "university students",
+   "username": "university_students_104",
+   "type": "UniversityStudent",
+   "bio": "We are the university students of Port Willow, united for affordable food, vibrant weekends, and a community where everyone can gather. Follow for upd",
+   "persona": "The University Students of Port Willow are an informal collective of students from the local university, though the institution's name is not specified in available records. This account represents their shared interests and advocacy, particularly regarding the proposed Harbor Lane Night Market. The account was created to amplify student voices in local civic discussions and to coordinate social activities. As a group, they are not a formal organization but a grassroots network of students who live, study, and socialize in Port Willow. Their main function is to advocate for student-friendly policies and events, such as affordable food options and lively weekend gathering places. The account is run by a rotating team of student volunteers, likely from the student union or a dedicated social committee. The account's positioning is that of a community organizer and advocate for student interests. It targets fellow students, local businesses, city council members, and other residents of Port Willow. Its core function is to inform students about local issues, mobilize support for causes like the night market, and foster a sense of community. The language style is informal, energetic, and inclusive, using slang, emojis, and hashtags like #LightUpHarborLane. Common expressions include 'cheap eats,' 'good vibes,' 'weekend plans,' and 'support local.' The account avoids partisan politics and offensive language, focusing on positive community building. Content types include event anno…",
+   "stance": "supportive",
+   "sentiment_bias": 0.7,
+   "influence": 0.9,
+   "activity_level": 0.9,
+   "active_hours": [
+    12,
+    13,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "profession": "Student advocacy group",
+   "mbti": "ENFP",
+   "age": 30
+  },
+  {
+   "id": 2,
+   "name": "Port Willow Gazette journalist",
+   "username": "port_willow_gazette_journalist_116",
+   "type": "Journalist",
+   "bio": "Local journalist at the Port Willow Gazette covering city hall and community issues. Currently pressing the city council to release its noise and safe",
+   "persona": "Alex Mercer is a 34-year-old journalist at the Port Willow Gazette, the local newspaper in the seaside town of Port Willow (population 18,000). He grew up in a nearby coastal town and studied journalism at a state university before returning to the region to work at the Gazette eight years ago. He covers local government, business, and community affairs. Alex has been following the Harbor Lane Night Market proposal closely. The city council, led by a council member who championed the market, has proposed closing Harbor Lane to cars every Friday and Saturday evening starting next month for a weekly night market with food stalls, live music, and local crafts. The council will vote in two weeks. Alex has formally requested that the city council publish its noise and safety assessment concerning the proposed market, arguing that residents and business owners need the data to make informed comments before the vote. He has built relationships with many stakeholders: elderly residents living above the shops who worry about noise until midnight and blocked access for ambulances; restaurant owners on Harbor Lane who fear lost parking and competition from cheap food stalls, though some hope for more foot traffic; street food vendors and young craft makers who see a rare chance to sell directly to customers; university students who want cheap food and a lively place to meet on weekends; and the Chamber of Commerce, which supports the market as a tourism draw. He also noted the student-…",
+   "stance": "neutral",
+   "sentiment_bias": 0.1,
+   "influence": 2.2,
+   "activity_level": 0.6,
+   "active_hours": [
+    8,
+    9,
+    10,
+    11,
+    14,
+    15,
+    16,
+    20,
+    21
+   ],
+   "profession": "Journalist",
+   "mbti": "INTJ",
+   "age": 34
+  },
+  {
+   "id": 3,
+   "name": "street food vendors",
+   "username": "street_food_vendors_156",
+   "type": "StreetVendor",
+   "bio": "Official account for the Street Food Vendors of Port Willow. We represent independent food stall operators seeking fair opportunities to sell directly",
+   "persona": "The Street Food Vendors of Port Willow is an informal collective of independent mobile food operators who have banded together to represent their shared interests in the ongoing debate over the proposed Harbor Lane Night Market. The group formed organically in response to the Port Willow City Council's proposal to close Harbor Lane to cars every Friday and Saturday evening starting next month, creating a weekly night market with food stalls, live music, and local crafts. While not a formal organization with a registered office, the collective operates as a unified voice for vendors who see the Harbor Lane market as a rare and valuable opportunity to sell directly to customers without the overhead of a brick-and-mortar location. The account is run by a rotating committee of three to five vendors who volunteer their time to manage communications and coordinate messaging. The account's primary audience includes Port Willow residents, local decision-makers such as city council members, fellow small business owners, and the broader community of potential customers. The core function of the account is to advocate for vendor-friendly policies, share information about the market proposal, amplify vendor voices, and engage constructively with stakeholders including the Chamber of Commerce, university students, and even concerned residents. The tone is professional yet approachable, reflecting the hardworking, community-oriented nature of street food vendors. Language is clear, direct…",
+   "stance": "supportive",
+   "sentiment_bias": 0.8,
+   "influence": 1.1,
+   "activity_level": 0.8,
+   "active_hours": [
+    10,
+    11,
+    12,
+    13,
+    17,
+    18,
+    19,
+    20
+   ],
+   "profession": "Street food vendors collective / advocacy group",
+   "mbti": "ESFJ",
+   "age": 30
+  },
+  {
+   "id": 4,
+   "name": "Port Willow City Council",
+   "username": "port_willow_city_council_109",
+   "type": "CityCouncilMember",
+   "bio": "Official account of the Port Willow City Council. We serve our seaside community of 18,000 residents with transparency and dedication. Here you'll fin",
+   "persona": "The Port Willow City Council is the governing body of Port Willow, a small seaside town of 18,000 people. Established to provide local governance and community services, the council oversees public infrastructure, safety, and civic initiatives. This official social media account serves as a primary communication channel between the council and residents, aiming to inform, engage, and gather feedback on municipal matters. The account targets all Port Willow residents, local businesses, community groups, and visitors interested in town affairs. It functions to disseminate official announcements, promote public events, share meeting agendas and minutes, and facilitate transparent dialogue. The council's speaking style is professional, courteous, and formal yet approachable, using clear and concise language. Common expressions include 'We are pleased to announce,' 'The council invites residents to,' and 'Public feedback is essential.' The account avoids partisan rhetoric, personal attacks, and unverified claims, maintaining a neutral and inclusive tone. Content typically includes event notices, public service announcements, meeting summaries, policy updates, and community spotlights. Posts are published regularly, with increased frequency during active initiatives, generally in the morning and early evening on weekdays. The council's official stance on the Harbor Lane Night Market is supportive, as it was proposed to boost local commerce and tourism. However, the council acknowl…",
+   "stance": "supportive",
+   "sentiment_bias": 0.3,
+   "influence": 2.8,
+   "activity_level": 0.2,
+   "active_hours": [
+    9,
+    10,
+    11,
+    14,
+    15,
+    16
+   ],
+   "profession": "Local government administration",
+   "mbti": "ISTJ",
+   "age": 30
+  },
+  {
+   "id": 5,
+   "name": "Harbor Lane restaurant owners",
+   "username": "harbor_lane_restaurant_owners_484",
+   "type": "RestaurantOwner",
+   "bio": "Official account for the Harbor Lane Restaurant Owners Association in Port Willow. We represent independent restaurateurs committed to a vibrant, safe",
+   "persona": "The Harbor Lane Restaurant Owners Association (HLROA) is an informal but active coalition of independent restaurant owners operating along Harbor Lane in Port Willow, a small seaside town of 18,000 people. Founded in 2019 to give local eateries a collective voice on parking and street maintenance issues, the group has no formal office or staff; it is run by a rotating volunteer committee of five owners who meet monthly at a member restaurant. Its primary function is to represent members' interests to the Port Willow City Council, share operational information, and coordinate joint promotions. The account is managed collectively by the committee, with posts drafted by the current chair and approved by at least two other members before publishing. The account's positioning is that of a professional, community-minded trade association. Target audiences include member restaurants, Harbor Lane shoppers, local residents, the city council, and the Port Willow Gazette. Core functions are advocacy, information sharing, and member promotion. The tone is formal but approachable, using 'we' to speak for the group. Language is measured and factual, avoiding slang or emotional outbursts. Common expressions include 'our members', 'we welcome dialogue', 'we urge the council', and 'a balanced approach'. The account avoids partisan attacks, personal criticism of council members, and speculation about other businesses' motives. It never posts about individual member disputes or internal disagr…",
+   "stance": "opposing",
+   "sentiment_bias": -0.3,
+   "influence": 1.2,
+   "activity_level": 0.7,
+   "active_hours": [
+    11,
+    12,
+    13,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Trade association representing independent restaurant owners on Harbor Lane, focused on advocacy, member coordination, and community engagement.",
+   "mbti": "ISTJ",
+   "age": 30
+  },
+  {
+   "id": 6,
+   "name": "Port Willow fire chief",
+   "username": "port_willow_fire_chief_587",
+   "type": "FireChief",
+   "bio": "Official account of the Port Willow Fire Chief. Committed to public safety, emergency preparedness, and keeping our community safe. We provide updates",
+   "persona": "The Port Willow Fire Chief is the official social media account representing the Fire Chief of Port Willow, a mid-sized coastal town. The Fire Department is a municipal agency responsible for fire suppression, emergency medical services, hazardous materials response, and fire prevention education. The account was established to enhance public communication and safety awareness. The account's primary audience includes Port Willow residents, local business owners, community leaders, and visitors. Its core function is to disseminate safety information, provide real-time updates during emergencies, and engage with the community on safety-related issues. The tone is professional, authoritative, and reassuring, with a focus on clear and concise messaging. Common expressions include 'safety first,' 'stay alert,' and 'emergency lanes must remain clear.' The account avoids political commentary and speculative statements, sticking to factual and safety-oriented content. Content types include safety tips, incident reports, event announcements, and reminders about emergency preparedness. Posting frequency is moderate, with increased activity during emergencies or local events. Active hours are typically 8 AM to 6 PM on weekdays, with after-hours monitoring during major incidents. The account's stance on the Harbor Lane Night Market is that while the department supports community events, emergency lanes must remain unobstructed at all times to ensure rapid response. The department has pu…",
+   "stance": "neutral",
+   "sentiment_bias": 0.0,
+   "influence": 1.8,
+   "activity_level": 0.3,
+   "active_hours": [
+    9,
+    10,
+    11,
+    14,
+    15,
+    16
+   ],
+   "profession": "Fire Chief",
+   "mbti": "ISTJ",
+   "age": 30
+  },
+  {
+   "id": 7,
+   "name": "Port Willow Gazette",
+   "username": "port_willow_gazette_427",
+   "type": "Organization",
+   "bio": "The Port Willow Gazette is the trusted local news source for Port Willow and surrounding communities. We deliver accurate, timely reporting on city go",
+   "persona": "The Port Willow Gazette is a local news organization founded over 30 years ago to serve the residents of Port Willow with reliable, independent journalism. As a community newspaper, its primary function is to report on local government, civic issues, business developments, and public safety, while providing a platform for community voices. The Gazette's social media account operates as an official extension of the newsroom, aiming to inform, engage, and connect with a broad audience that includes local residents, business owners, city officials, and community groups. The account maintains a professional, objective, and trustworthy tone, using clear and concise language. It frequently employs journalistic phrases such as 'according to officials,' 'we have reached out for comment,' and 'stay tuned for updates.' The Gazette avoids speculation, partisan rhetoric, and sensationalism, and it does not endorse political candidates or take sides in contentious debates, instead focusing on facts and multiple perspectives. Content types include breaking news alerts, live coverage of city council meetings, in-depth feature stories, community event announcements, and reader polls. Posting frequency is typically 3-5 times per day, with heightened activity during major local events or breaking news. Active hours are from 7 AM to 10 PM local time, with scheduled posts and real-time updates. The Gazette's official stance on core topics is to advocate for transparency and accountability in lo…",
+   "stance": "observer",
+   "sentiment_bias": 0.0,
+   "influence": 2.5,
+   "activity_level": 0.5,
+   "active_hours": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "profession": "Local news publication",
+   "mbti": "ISTJ",
+   "age": 30
+  },
+  {
+   "id": 8,
+   "name": "Port Willow Chamber of Commerce",
+   "username": "port_willow_chamber_of_commerce_531",
+   "type": "ChamberOfCommerce",
+   "bio": "The Port Willow Chamber of Commerce is a member-driven organization dedicated to strengthening our local economy and enhancing the quality of life in",
+   "persona": "The Port Willow Chamber of Commerce is a formal membership-based organization representing the business interests of Port Willow, a small seaside town of 18,000 residents. Founded to support local commerce and economic development, the Chamber serves as a unified voice for businesses, from retail shops to service providers. Its primary functions include advocacy on behalf of members, promoting tourism, facilitating networking, and providing resources to help businesses grow. The Chamber operates as a non-profit entity and collaborates with local government, community groups, and residents to foster a vibrant economy. On social media, the Chamber positions itself as a professional, community-oriented account. Its target audience includes local business owners, residents, tourists, and potential investors. The core function is to inform, engage, and advocate—sharing news that affects the business community, promoting member businesses, and highlighting local assets. The tone is consistently professional, positive, and constructive, with a focus on collaboration and solutions. Language is polished yet approachable, using terms like 'our members,' 'local businesses,' and 'community partners.' The Chamber avoids partisan politics, negative commentary, and anything that could be construed as divisive. It refrains from taking sides in interpersonal disputes and maintains a neutral, fact-based stance on controversial issues. Content typically includes member spotlights, event announ…",
+   "stance": "supportive",
+   "sentiment_bias": 0.6,
+   "influence": 2.0,
+   "activity_level": 0.3,
+   "active_hours": [
+    9,
+    10,
+    11,
+    14,
+    15,
+    16
+   ],
+   "profession": "Business advocacy and community development organization",
+   "mbti": "ESFJ",
+   "age": 30
+  },
+  {
+   "id": 9,
+   "name": "young craft makers",
+   "username": "young_craft_makers_793",
+   "type": "StreetVendor",
+   "bio": "Young Craft Makers is a collective of independent artisans and makers based in Port Willow, dedicated to handmade crafts and direct-to-consumer sales.",
+   "persona": "Young Craft Makers is an informal collective of independent artisans and craftspeople operating in Port Willow, a small seaside town of 18,000 people. The group formed organically over the past few years as younger makers—many in their twenties and thirties—struggled to find affordable retail space and direct sales channels. They specialize in handmade goods such as ceramics, textiles, jewelry, woodwork, and paper crafts. The collective has no formal hierarchy but coordinates through social media and occasional meetups. Their primary function is to support members in selling directly to customers, sharing resources, and advocating for maker-friendly policies. The account @youngcraftmakers serves as the collective's official social media presence. It is a group account, not a personal profile, and is managed by a rotating team of three to five volunteer members. The target audience includes local residents, tourists, fellow artisans, and policy stakeholders such as the city council and chamber of commerce. The core function is to promote members' products, announce market appearances, share behind-the-scenes craft content, and mobilize support for issues affecting independent makers. The tone is friendly, authentic, and community-oriented. They use casual but respectful language, often including emojis and first-person plural ('we'). They avoid partisan politics, personal attacks, and overtly negative commentary. They prefer to focus on solutions and positive community impact…",
+   "stance": "supportive",
+   "sentiment_bias": 0.7,
+   "influence": 1.0,
+   "activity_level": 0.8,
+   "active_hours": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    17,
+    18,
+    19,
+    20,
+    21
+   ],
+   "profession": "Independent artisan collective / craft makers",
+   "mbti": "ENFP",
+   "age": 30
+  }
+ ],
+ "rounds": [
+  {
+   "round": 0,
+   "day": 1,
+   "hour": 8,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r0-1",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "POST",
+     "content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane",
+     "post_id": "twitter:1",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-2",
+     "platform": "twitter",
+     "agent_id": 1,
+     "type": "POST",
+     "content": "The #LightUpHarborLane campaign is blowing up! Cheap food, live music, and a place to hang out on weekends? Yes please! Let’s make this happen, Port Willow! 🔥",
+     "post_id": "twitter:2",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-3",
+     "platform": "twitter",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow",
+     "post_id": "twitter:3",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-4",
+     "platform": "twitter",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "This night market is a rare chance for small vendors like us to sell directly to the community. We need more foot traffic and local support! #SupportLocal",
+     "post_id": "twitter:4",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-5",
+     "platform": "twitter",
+     "agent_id": 4,
+     "type": "POST",
+     "content": "The Port Willow City Council is excited to propose the Harbor Lane Night Market! A three-month trial with a public review will let us test this vibrant addition to our town. Join us in shaping the future of Harbor Lane!",
+     "post_id": "twitter:5",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-6",
+     "platform": "twitter",
+     "agent_id": 5,
+     "type": "POST",
+     "content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness",
+     "post_id": "twitter:6",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-7",
+     "platform": "twitter",
+     "agent_id": 6,
+     "type": "POST",
+     "content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire",
+     "post_id": "twitter:7",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-8",
+     "platform": "twitter",
+     "agent_id": 8,
+     "type": "POST",
+     "content": "The Port Willow Chamber of Commerce supports the Harbor Lane Night Market as a tourism draw! This is a chance to showcase our town and boost the local economy. Let’s make it a success!",
+     "post_id": "twitter:8",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-9",
+     "platform": "twitter",
+     "agent_id": 7,
+     "type": "POST",
+     "content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews",
+     "post_id": "twitter:9",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-10",
+     "platform": "twitter",
+     "agent_id": 9,
+     "type": "POST",
+     "content": "Young craft makers are ready to bring handmade goods to Harbor Lane! This market is a rare opportunity to connect with customers and grow our small businesses. #HarborLaneMarket",
+     "post_id": "twitter:10",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-11",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "POST",
+     "content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane",
+     "post_id": "reddit:1",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-12",
+     "platform": "reddit",
+     "agent_id": 1,
+     "type": "POST",
+     "content": "The #LightUpHarborLane campaign is blowing up! Cheap food, live music, and a place to hang out on weekends? Yes please! Let’s make this happen, Port Willow! 🔥",
+     "post_id": "reddit:2",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-13",
+     "platform": "reddit",
+     "agent_id": 2,
+     "type": "POST",
+     "content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow",
+     "post_id": "reddit:3",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-14",
+     "platform": "reddit",
+     "agent_id": 3,
+     "type": "POST",
+     "content": "This night market is a rare chance for small vendors like us to sell directly to the community. We need more foot traffic and local support! #SupportLocal",
+     "post_id": "reddit:4",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-15",
+     "platform": "reddit",
+     "agent_id": 4,
+     "type": "POST",
+     "content": "The Port Willow City Council is excited to propose the Harbor Lane Night Market! A three-month trial with a public review will let us test this vibrant addition to our town. Join us in shaping the future of Harbor Lane!",
+     "post_id": "reddit:5",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-16",
+     "platform": "reddit",
+     "agent_id": 5,
+     "type": "POST",
+     "content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness",
+     "post_id": "reddit:6",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-17",
+     "platform": "reddit",
+     "agent_id": 6,
+     "type": "POST",
+     "content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire",
+     "post_id": "reddit:7",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-18",
+     "platform": "reddit",
+     "agent_id": 8,
+     "type": "POST",
+     "content": "The Port Willow Chamber of Commerce supports the Harbor Lane Night Market as a tourism draw! This is a chance to showcase our town and boost the local economy. Let’s make it a success!",
+     "post_id": "reddit:8",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-19",
+     "platform": "reddit",
+     "agent_id": 7,
+     "type": "POST",
+     "content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews",
+     "post_id": "reddit:9",
+     "target_agent_id": null,
+     "target_content": null
+    },
+    {
+     "id": "r0-20",
+     "platform": "reddit",
+     "agent_id": 9,
+     "type": "POST",
+     "content": "Young craft makers are ready to bring handmade goods to Harbor Lane! This market is a rare opportunity to connect with customers and grow our small businesses. #HarborLaneMarket",
+     "post_id": "reddit:10",
+     "target_agent_id": null,
+     "target_content": null
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "day": 1,
+   "hour": 8,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 2,
+   "day": 1,
+   "hour": 9,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 3,
+   "day": 1,
+   "hour": 10,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 4,
+   "day": 1,
+   "hour": 11,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 5,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 6,
+   "day": 1,
+   "hour": 13,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 7,
+   "day": 1,
+   "hour": 14,
+   "minute": 0,
+   "actions": []
+  },
+  {
+   "round": 8,
+   "day": 1,
+   "hour": 15,
+   "minute": 0,
+   "actions": [
+    {
+     "id": "r8-1",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 2,
+     "target_content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow"
+    },
+    {
+     "id": "r8-2",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "REPOST",
+     "content": null,
+     "post_id": "twitter:3",
+     "target_agent_id": 2,
+     "target_content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow"
+    },
+    {
+     "id": "r8-3",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "twitter:6",
+     "target_agent_id": 5,
+     "target_content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness"
+    },
+    {
+     "id": "r8-4",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "QUOTE",
+     "content": "We at Elderly Residents of Harbor Lane wholeheartedly support this call for transparency. We have been asking the same question for weeks—where is the noise and safety assessment? Seniors living above the shops deserve to know the facts before any vote. Please publish it, @PortW…",
+     "post_id": "twitter:12",
+     "target_agent_id": 2,
+     "target_content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow"
+    },
+    {
+     "id": "r8-5",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "QUOTE",
+     "content": "A fair point from our neighbors on Harbor Lane. We are not against the market—but closing the street affects everyone who lives and works here. Let's have solutions that protect small businesses AND ensure emergency access and quiet nights for residents.",
+     "post_id": "twitter:13",
+     "target_agent_id": 5,
+     "target_content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness"
+    },
+    {
+     "id": "r8-6",
+     "platform": "twitter",
+     "agent_id": 0,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 2,
+     "target_content": null
+    },
+    {
+     "id": "r8-7",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:1",
+     "target_agent_id": 0,
+     "target_content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane"
+    },
+    {
+     "id": "r8-8",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:7",
+     "target_agent_id": 6,
+     "target_content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire"
+    },
+    {
+     "id": "r8-9",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "LIKE",
+     "content": null,
+     "post_id": "reddit:9",
+     "target_agent_id": 7,
+     "target_content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews"
+    },
+    {
+     "id": "r8-10",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "Thank you for sharing this. As residents of the apartments above the shops on Harbor Lane, we signed as well. Our concern is not against the market itself—it's the noise until midnight and, most importantly, whether ambulances can reach us in an emergency. 900 signatures in two…",
+     "post_id": "reddit:1",
+     "target_agent_id": 0,
+     "target_content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane"
+    },
+    {
+     "id": "r8-11",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "This is exactly our point, and we thank the Fire Department for stating it plainly. We are not against the market—we are asking that any trial plan guarantee unobstructed access for fire and medical services at all times, and that the city council publish its safety assessment s…",
+     "post_id": "reddit:7",
+     "target_agent_id": 6,
+     "target_content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire"
+    },
+    {
+     "id": "r8-12",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "COMMENT",
+     "content": "Thank you for following this so closely. We wrote to your newsroom because we believe transparency is the fairest path for everyone. We respectfully ask that you keep pressing the council to publish the noise and safety assessment before the trial begins, not after. Our communit…",
+     "post_id": "reddit:9",
+     "target_agent_id": 7,
+     "target_content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews"
+    },
+    {
+     "id": "r8-13",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 7,
+     "target_content": null
+    },
+    {
+     "id": "r8-14",
+     "platform": "reddit",
+     "agent_id": 0,
+     "type": "FOLLOW",
+     "content": null,
+     "post_id": null,
+     "target_agent_id": 6,
+     "target_content": null
+    }
+   ]
+  }
+ ],
+ "posts": {
+  "reddit:1": {
+   "author_id": 0,
+   "content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "reddit:2": {
+   "author_id": 1,
+   "content": "The #LightUpHarborLane campaign is blowing up! Cheap food, live music, and a place to hang out on weekends? Yes please! Let’s make this happen, Port Willow! 🔥",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:3": {
+   "author_id": 2,
+   "content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:4": {
+   "author_id": 3,
+   "content": "This night market is a rare chance for small vendors like us to sell directly to the community. We need more foot traffic and local support! #SupportLocal",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:5": {
+   "author_id": 4,
+   "content": "The Port Willow City Council is excited to propose the Harbor Lane Night Market! A three-month trial with a public review will let us test this vibrant addition to our town. Join us in shaping the future of Harbor Lane!",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:6": {
+   "author_id": 5,
+   "content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:7": {
+   "author_id": 6,
+   "content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "reddit:8": {
+   "author_id": 8,
+   "content": "The Port Willow Chamber of Commerce supports the Harbor Lane Night Market as a tourism draw! This is a chance to showcase our town and boost the local economy. Let’s make it a success!",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "reddit:9": {
+   "author_id": 7,
+   "content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 1
+  },
+  "reddit:10": {
+   "author_id": 9,
+   "content": "Young craft makers are ready to bring handmade goods to Harbor Lane! This market is a rare opportunity to connect with customers and grow our small businesses. #HarborLaneMarket",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:1": {
+   "author_id": 0,
+   "content": "Just signed the petition against closing Harbor Lane! 900 signatures in two days shows how worried we are. Noise until midnight and ambulances blocked? Not worth it. #SaveHarborLane",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:2": {
+   "author_id": 1,
+   "content": "The #LightUpHarborLane campaign is blowing up! Cheap food, live music, and a place to hang out on weekends? Yes please! Let’s make this happen, Port Willow! 🔥",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:3": {
+   "author_id": 2,
+   "content": "As a journalist at the Port Willow Gazette, I've formally requested the city council publish its noise and safety assessment for the proposed night market. Residents deserve transparency before the vote. #PortWillow",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 2,
+   "comments": 0
+  },
+  "twitter:4": {
+   "author_id": 3,
+   "content": "This night market is a rare chance for small vendors like us to sell directly to the community. We need more foot traffic and local support! #SupportLocal",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:5": {
+   "author_id": 4,
+   "content": "The Port Willow City Council is excited to propose the Harbor Lane Night Market! A three-month trial with a public review will let us test this vibrant addition to our town. Join us in shaping the future of Harbor Lane!",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:6": {
+   "author_id": 5,
+   "content": "Restaurant owners on Harbor Lane are concerned: closing the street means lost parking and unfair competition from cheap food stalls. We need solutions that support all local businesses, not just some. #HarborLaneBusiness",
+   "round": 0,
+   "likes": 1,
+   "dislikes": 0,
+   "shares": 1,
+   "comments": 0
+  },
+  "twitter:7": {
+   "author_id": 6,
+   "content": "Reminder: emergency lanes must remain open at all times. Any event plan must guarantee unobstructed access for fire and medical services. Safety first. #PortWillowFire",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:8": {
+   "author_id": 8,
+   "content": "The Port Willow Chamber of Commerce supports the Harbor Lane Night Market as a tourism draw! This is a chance to showcase our town and boost the local economy. Let’s make it a success!",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:9": {
+   "author_id": 7,
+   "content": "The Port Willow Gazette is following the night market debate closely. We’ll keep you updated on the council’s response to our request for the noise and safety assessment. Stay tuned. #PortWillowNews",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:10": {
+   "author_id": 9,
+   "content": "Young craft makers are ready to bring handmade goods to Harbor Lane! This market is a rare opportunity to connect with customers and grow our small businesses. #HarborLaneMarket",
+   "round": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:12": {
+   "author_id": 0,
+   "content": "We at Elderly Residents of Harbor Lane wholeheartedly support this call for transparency. We have been asking the same question for weeks—where is the noise and safety assessment? Seniors living above the shops deserve to know the facts before any vote. Please publish it, @PortW…",
+   "round": 8,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  },
+  "twitter:13": {
+   "author_id": 0,
+   "content": "A fair point from our neighbors on Harbor Lane. We are not against the market—but closing the street affects everyone who lives and works here. Let's have solutions that protect small businesses AND ensure emergency access and quiet nights for residents.",
+   "round": 8,
+   "likes": 0,
+   "dislikes": 0,
+   "shares": 0,
+   "comments": 0
+  }
+ },
+ "follows": [
+  {
+   "from": 0,
+   "to": 2,
+   "round": 8
+  },
+  {
+   "from": 0,
+   "to": 7,
+   "round": 8
+  },
+  {
+   "from": 0,
+   "to": 6,
+   "round": 8
+  }
+ ]
+}
