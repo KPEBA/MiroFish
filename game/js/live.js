@@ -284,10 +284,7 @@ export function createLiveClient(baseUrl = 'http://localhost:5001') {
     if (!simId) throw new Error('Simulation id is required.');
     setStatus('connecting');
     try {
-      await api(base, '/health').catch(async () => {
-        // /health returns plain JSON {status:'ok'} (no success flag); api() tolerates that, but rethrow net errors
-        throw new Error(`Backend health check failed at ${base}/health`);
-      });
+      await api(base, '/health'); // plain {status:'ok'} (no success flag)
       const simInfo = await api(base, `/api/simulation/${encodeURIComponent(simId)}`);
       setStatus('loading');
       const config = await api(base, `/api/simulation/${encodeURIComponent(simId)}/config`).catch(() => null);

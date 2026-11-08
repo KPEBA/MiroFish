@@ -458,16 +458,18 @@ export function initUI(engine, bus) {
   function toast(text, icon, cls) {
     const t = el('div', { class: 'toast ' + (cls || '') }, el('span', { class: 'toast-ic' }, icon || '✨'), el('span', {}, text));
     $toasts.append(t);
-    while ($toasts.children.length > 4) $toasts.firstChild.remove();
+    while ($toasts.children.length > 3) $toasts.firstChild.remove();
     setTimeout(() => t.classList.add('out'), 4200);
     setTimeout(() => t.remove(), 4700);
   }
+  let lastLikeToast = 0;
   const LIKE_STEPS = [5, 10, 25, 50, 100];
   function checkToasts(a) {
     if (a.type === 'LIKE' && a.post_id) {
       const n = (S.likeCounts.get(a.post_id) || 0) + 1;
       S.likeCounts.set(a.post_id, n);
-      if (LIKE_STEPS.includes(n)) {
+      if (LIKE_STEPS.includes(n) && Date.now() - lastLikeToast > 2500) {
+        lastLikeToast = Date.now();
         const p = S.data.posts[a.post_id], au = p && agent(p.author_id);
         toast(`${au ? au.name + '’s' : 'A'} post just hit ${n} likes: “${trunc(p ? p.content : '', 60)}”`, '🔥');
       }
