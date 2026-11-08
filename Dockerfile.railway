@@ -20,7 +20,15 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app/backend
 COPY backend/pyproject.toml backend/uv.lock ./
-RUN uv sync --frozen --no-install-project --no-dev
+# Same pinned versions as uv.lock, but CPU-only torch: the locked CUDA build
+# adds ~8 GB of nvidia wheels that are useless without a GPU.
+RUN uv venv --python /usr/local/bin/python3 /app/backend/.venv \
+  && uv pip install --python /app/backend/.venv/bin/python torch==2.9.1 \
+       --index-url https://download.pytorch.org/whl/cpu \
+  && uv export --frozen --no-hashes --no-dev --no-emit-project 2>/dev/null \
+       | grep -viE '^(torch|nvidia-|triton)' | grep -vE '^\s*(#|$)' > /tmp/req.txt \
+  && uv pip install --python /app/backend/.venv/bin/python -r /tmp/req.txt \
+  && rm -rf /root/.cache/uv /tmp/req.txt
 
 COPY backend/ ./
 COPY --from=web /web/dist /app/frontend/dist
