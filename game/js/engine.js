@@ -1,6 +1,7 @@
 // Swarm Town — engine.js : playback clock, agents (A* walking, tasks, sleep/wander), rendering, camera, effects.
 // API: createEngine(canvas) -> { load, play, pause, setSpeed, seek, select, getData, getAgentState, ...extras }
 import { emit } from './bus.js';
+import { t, prettyType } from './i18n.js';
 import { buildWorld } from './world.js';
 import {
   TILE, getCharacter, clearCharacterCache, getIcon, ACTION_ICON, STANCE_COLORS, drawBubble, drawTag, wrapText, getGlow,
@@ -12,8 +13,10 @@ const WALK = 3.0;                        // tiles / game-second
 const MAX_MUL = 6;                       // hurry multiplier cap
 const SPEEDS = [0.5, 1, 2, 4, 8];
 const PLATFORM_PLACE = { twitter: 'plaza', reddit: 'forum' };
-const ACTIVITY = { POST: 'posting', QUOTE: 'quoting a post', COMMENT: 'commenting', LIKE: 'liking a post', DISLIKE: 'disliking a post', REPOST: 'reposting', FOLLOW: 'following someone', MUTE: 'muting someone', SEARCH: 'searching at the Library', TREND: 'checking trends', IDLE: 'taking a break' };
-const PLACE_NAME = { plaza: 'Plaza', forum: 'Forum Hall', cafe: 'Cafe', library: 'Library', park: 'Park' };
+// Activities are stored as {k, v} keys so they can be translated at read time (language may change mid-play).
+const ICON_ACT = { POST: 1, QUOTE: 1, COMMENT: 1, LIKE: 1, DISLIKE: 1, REPOST: 1, FOLLOW: 1, MUTE: 1, SEARCH: 1, TREND: 1, IDLE: 1 };
+const A = (k, v) => ({ k, v });
+const activityText = a => (a && typeof a === 'object' ? t(a.k, a.v && a.v.place ? { ...a.v, place: t('place.' + a.v.place + 'The') } : a.v) : String(a || ''));
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -77,7 +80,7 @@ export function createEngine(canvas) {
       id: d.id, d, i, rnd, sprite: getCharacter(d.id), home: door, homeObj: home && home.house,
       x: door.x * TILE + 8, y: door.y * TILE + 12, path: null, pi: 0, dir: 0, walkPhase: 0, moving: false, mul: 1,
       queue: [], task: null, sleeping: false, bubble: null, mood: base, base,
-      stats: freshStats(), lastAction: null, activity: 'idle', wanderT: rnd() * 3, offX: Math.round(rnd() * 6 - 3), offY: Math.round(rnd() * 4 - 2),
+      stats: freshStats(), lastAction: null, activity: A('act.idle'), wanderT: rnd() * 3, offX: Math.round(rnd() * 6 - 3), offY: Math.round(rnd() * 4 - 2),
       hours: Array.isArray(d.active_hours) && d.active_hours.length ? new Set(d.active_hours.map(Number)) : null,
       alertT: 0, hop: rnd() * 6, moodFlash: 0, stance: STANCE_COLORS[d.stance] || STANCE_COLORS.observer, goingHome: false, place: null,
     };
@@ -177,7 +180,7 @@ export function createEngine(canvas) {
       if (a.task || a.queue.length || a.sleeping || a.rnd() > 0.5) continue;
       const d = Math.hypot(a.x - P.center.x, a.y - P.center.y) / TILE;
       if (d > 45) continue;
-      a.goingHome = false; a.place = 'plaza'; a.activity = 'joining the crowd at the Plaza';
+      a.goingHome = false; a.place = 'plaza'; a.activity = A('act.joinPlaza');
       setPath(a, pickSpot(P.boardSpots, a.rnd), 1.6); a.wanderT = ROUND_SECONDS * 1.5 + a.rnd() * 3;
     }
     if (author) popIcon(author.x, author.y - 26, 'star', 1.6);
@@ -193,7 +196,7 @@ export function createEngine(canvas) {
     a.task = { entry, phase: 'walk', el: 0, budget, linger: 0 };
     if (budget > 0.2 && dest) { setPath(a, dest, 1, budget); pathBudget--; }
     else { a.path = null; a.moving = false; }
-    a.activity = (a.place ? `walking to the ${PLACE_NAME[a.place]}` : (act.target_agent_id != null && agentById.get(act.target_agent_id) ? `heading to ${agentById.get(act.target_agent_id).d.name}` : 'on the move'));
+    a.activity = (a.place ? A('act.walkTo', { place: a.place }) : (act.target_agent_id != null && agentById.get(act.target_agent_id) ? A('act.headTo', { name: agentById.get(act.target_agent_id).d.name }) : A('act.move')));
   }
   function perform(a, entry, quiet = false) {
     if (entry.done) return;
@@ -201,7 +204,7 @@ export function createEngine(canvas) {
     const act = entry.action;
     applyAction(act, true);
     const tg = act.target_agent_id != null ? agentById.get(act.target_agent_id) : null;
-    a.activity = ACTIVITY[act.type] || 'idle';
+    a.activity = A(act.type in ICON_ACT ? 'act.' + act.type : 'act.idle');
     if (!quiet) {
       if (tg && tg !== a && !a.moving) { const dx = tg.x - a.x, dy = tg.y - a.y; a.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
       showBubble(a, act);
@@ -252,7 +255,7 @@ export function createEngine(canvas) {
     board.twitter = 0; board.reddit = 0; followEdges = []; postLikes = new Map(); hype = null; effects = [];
     for (const a of agents) {
       a.stats = freshStats(); a.mood = a.base; a.lastAction = null; a.queue.length = 0; a.task = null; a.bubble = null;
-      a.path = null; a.moving = false; a.activity = 'idle'; a.place = null; a.goingHome = false;
+      a.path = null; a.moving = false; a.activity = A('act.idle'); a.place = null; a.goingHome = false;
     }
   }
   function seek(round, opts = {}) {
@@ -269,13 +272,13 @@ export function createEngine(canvas) {
       const hour = ri.hour + ri.minute / 60;
       for (const a of agents) {
         a.wanderT = a.rnd() * 3;
-        if (!isAwake(a, hour)) { placeAt(a, a.home); a.sleeping = true; a.activity = 'sleeping'; continue; }
+        if (!isAwake(a, hour)) { placeAt(a, a.home); a.sleeping = true; a.activity = A('act.sleeping'); continue; }
         a.sleeping = false;
         let spot;
         if (a.lastAction) spot = destinationFor(a, a.lastAction, true);
         else spot = world.randomSpotNear(a.home.x, a.home.y + 1, 4, a.rnd);
         placeAt(a, spot || a.home);
-        a.activity = a.lastAction ? 'hanging around' : 'idle';
+        a.activity = a.lastAction ? A('act.hanging') : A('act.idle');
       }
     }
     startRound(idx);
@@ -313,29 +316,29 @@ export function createEngine(canvas) {
     if (!a.task && a.queue.length) { startTask(a, a.queue.shift()); return; }
     if (a.task) return;
     // idle life
-    if (a.moving) { stepAgent(a, dt); if (!a.moving && a.goingHome) { a.sleeping = true; a.goingHome = false; a.activity = 'sleeping'; } return; }
+    if (a.moving) { stepAgent(a, dt); if (!a.moving && a.goingHome) { a.sleeping = true; a.goingHome = false; a.activity = A('act.sleeping'); } return; }
     const awake = isAwake(a, hour);
     if (!awake) {
       if (a.sleeping) return;
       const t = tileOf(a);
-      if (t.x === a.home.x && t.y === a.home.y) { a.sleeping = true; a.activity = 'sleeping'; return; }
+      if (t.x === a.home.x && t.y === a.home.y) { a.sleeping = true; a.activity = A('act.sleeping'); return; }
       if (pathBudget <= 0) return;
       pathBudget--;
-      a.goingHome = true; a.activity = 'heading home to sleep';
+      a.goingHome = true; a.activity = A('act.home');
       if (!setPath(a, a.home, 1.3)) { placeAt(a, a.home); a.sleeping = true; a.goingHome = false; }
       return;
     }
-    if (a.sleeping) { a.sleeping = false; placeAt(a, a.home); a.activity = 'just woke up'; a.wanderT = 0.5 + a.rnd() * 2; a.bubble = { icon: getIcon('coffee'), layout: null, t: 0, life: 1.5 }; }
+    if (a.sleeping) { a.sleeping = false; placeAt(a, a.home); a.activity = A('act.woke'); a.wanderT = 0.5 + a.rnd() * 2; a.bubble = { icon: getIcon('coffee'), layout: null, t: 0, life: 1.5 }; }
     a.wanderT -= dt;
     if (a.wanderT > 0 || pathBudget <= 0) return;
     pathBudget--;
     a.wanderT = 2.5 + a.rnd() * 5;
     const P = world.places, r = a.rnd();
     let dest;
-    if (hype && r < 0.35) { dest = pickSpot(P.plaza.boardSpots, a.rnd); a.place = 'plaza'; a.activity = 'joining the crowd at the Plaza'; }
-    else if (r < 0.62) { const t = tileOf(a); dest = world.randomSpotNear(t.x, t.y, 5, a.rnd); a.activity = 'strolling'; }
-    else if (r < 0.75) { dest = world.randomSpotNear(a.home.x, a.home.y + 1, 4, a.rnd); a.activity = 'pottering around home'; }
-    else { const k = ['park', 'cafe', 'plaza', 'park'][Math.floor(a.rnd() * 4)]; dest = pickSpot(P[k].spots, a.rnd); a.place = k; a.activity = `wandering to the ${PLACE_NAME[k]}`; }
+    if (hype && r < 0.35) { dest = pickSpot(P.plaza.boardSpots, a.rnd); a.place = 'plaza'; a.activity = A('act.joinPlaza'); }
+    else if (r < 0.62) { const t = tileOf(a); dest = world.randomSpotNear(t.x, t.y, 5, a.rnd); a.activity = A('act.stroll'); }
+    else if (r < 0.75) { dest = world.randomSpotNear(a.home.x, a.home.y + 1, 4, a.rnd); a.activity = A('act.potter'); }
+    else { const k = ['park', 'cafe', 'plaza', 'park'][Math.floor(a.rnd() * 4)]; dest = pickSpot(P[k].spots, a.rnd); a.place = k; a.activity = A('act.wander', { place: k }); }
     if (dest) setPath(a, dest, 0.55 + a.rnd() * 0.25);
   }
 
@@ -541,7 +544,7 @@ export function createEngine(canvas) {
 
   function drawLoading() {
     ctx.fillStyle = '#fff8ec'; ctx.font = `${Math.round(14 * dpr)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('Building Swarm Town…', cw / 2, ch / 2); ctx.textAlign = 'left';
+    ctx.fillText(t('canvas.loading'), cw / 2, ch / 2); ctx.textAlign = 'left';
   }
 
   function drawWorldEffects(z) {
@@ -692,20 +695,21 @@ export function createEngine(canvas) {
       const [x, y] = S(L.x, L.y);
       if (L.kind === 'place') {
         ctx.font = '800 12px system-ui, sans-serif';
-        const tw = ctx.measureText(L.text).width;
-        ctx.fillStyle = 'rgba(43,34,51,0.55)'; ctx.fillText(L.text, x * k - tw / 2 + 1, y * k + 1);
-        ctx.fillStyle = 'rgba(255,248,236,0.92)'; ctx.fillText(L.text, x * k - tw / 2, y * k);
+        const lt = L.key ? t(L.key) : L.text;
+        const tw = ctx.measureText(lt).width;
+        ctx.fillStyle = 'rgba(43,34,51,0.55)'; ctx.fillText(lt, x * k - tw / 2 + 1, y * k + 1);
+        ctx.fillStyle = 'rgba(255,248,236,0.92)'; ctx.fillText(lt, x * k - tw / 2, y * k);
         ctx.font = TAG_FONT;
       } else {
-        let text = L.text;
-        if (L.text === 'Forum Hall') text += `  ·  ${board.reddit} threads`;
-        drawTag(ctx, x * k, y * k - 2, text, L.kind === 'district' ? L.color : (L.text === 'Forum Hall' ? '#ff8a3a' : '#f2a65a'), { bg: 'rgba(43,34,51,0.78)' });
+        let text = L.key ? t(L.key) : prettyType(L.text);
+        if (L.key === 'place.forum') text += '  ·  ' + t('n.threads', { n: board.reddit });
+        drawTag(ctx, x * k, y * k - 2, text, L.kind === 'district' ? L.color : (L.key === 'place.forum' ? '#ff8a3a' : '#f2a65a'), { bg: 'rgba(43,34,51,0.78)' });
       }
     }
     // noticeboard count badge
     {
       const o = world.board; const [x, y] = S(o.x + o.img.width / 2, o.y);
-      drawTag(ctx, x * k, y * k - 2, `Noticeboard · ${board.twitter} posts`, '#4fb3e8', { bg: 'rgba(43,34,51,0.85)' });
+      drawTag(ctx, x * k, y * k - 2, t('place.board', { posts: t('n.posts', { n: board.twitter }) }), '#4fb3e8', { bg: 'rgba(43,34,51,0.85)' });
       if (hype) {
         const fi = getIcon('fire');
         const bob = Math.round(Math.sin(realTime * 5) * 2);
@@ -958,21 +962,21 @@ export function createEngine(canvas) {
       const snow = /snow|blizzard|cold|winter|frost|freez|ice|neige|雪/i.test(text);
       const n = snow ? 260 : 380;
       weather = { kind: snow ? 'snow' : 'rain', t: 0, dur: 30, alpha: 0, drops: Array.from({ length: n }, () => ({ x: Math.random() * 1.04, y: Math.random(), v: 0.9 + Math.random() * 0.8, l: 8 + Math.random() * 10, s: Math.random() < 0.3 ? 3 : 2, ph: Math.random() * 6 })) };
-      banner = { text: `GOD · ${snow ? 'Snow' : 'Rain'}${text ? ': ' + text : ''}`, t: 0, dur: 6, color: snow ? '#6c8aae' : '#4a6fa5', icon: snow ? 'star' : 'speech' };
+      banner = { text: `${t(snow ? 'god.bannerSnow' : 'god.bannerRain')}${text ? ': ' + text : ''}`, t: 0, dur: 6, color: snow ? '#6c8aae' : '#4a6fa5', icon: snow ? 'star' : 'speech' };
     } else if (kind === 'festival') {
       festival = { t: 0, dur: 40, alpha: 0 };
-      banner = { text: `GOD · Festival${text ? ': ' + text : ''}`, t: 0, dur: 6, color: '#c9563f', icon: 'music' };
+      banner = { text: `${t('god.bannerFestival')}${text ? ': ' + text : ''}`, t: 0, dur: 6, color: '#c9563f', icon: 'music' };
       // gather some agents at the plaza
-      for (const a of agents) if (!a.sleeping && !a.task && !a.queue.length && a.rnd() < 0.45) { setPath(a, pickSpot(world.places.plaza.spots, a.rnd), 1.4); a.wanderT = 8 + a.rnd() * 6; a.activity = 'celebrating at the festival'; }
+      for (const a of agents) if (!a.sleeping && !a.task && !a.queue.length && a.rnd() < 0.45) { setPath(a, pickSpot(world.places.plaza.spots, a.rnd), 1.4); a.wanderT = 8 + a.rnd() * 6; a.activity = A('act.festival'); }
     } else {
       rumor = { t: 0, text };
-      banner = { text: `GOD · Rumor${text ? ': ' + text : ''}`, t: 0, dur: 7, color: '#7a4fb0', icon: 'exclaim' };
+      banner = { text: `${t('god.bannerRumor')}${text ? ': ' + text : ''}`, t: 0, dur: 7, color: '#7a4fb0', icon: 'exclaim' };
     }
   }
   function getAgentState(id) {
     const a = agentById.get(id); if (!a) return null;
     return {
-      id: a.id, x: a.x / TILE, y: a.y / TILE, mood: a.mood, activity: a.activity, lastAction: a.lastAction,
+      id: a.id, x: a.x / TILE, y: a.y / TILE, mood: a.mood, activity: activityText(a.activity), lastAction: a.lastAction,
       stats: { ...a.stats }, sleeping: a.sleeping, home: { ...a.home }, district: a.d.type,
     };
   }

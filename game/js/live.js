@@ -12,6 +12,7 @@
 //   Rounds still in progress (== current_round while running) are not fetched until they are complete.
 //
 // All MiroFish responses are {success, data} / {success:false, error}.
+import { t } from './i18n.js';
 import { emit, on } from './bus.js';
 
 const POLL_MS = 3000;
@@ -36,13 +37,13 @@ async function api(base, path, opts) {
   try {
     res = await fetch(base + path, opts);
   } catch (e) {
-    throw new Error(`Cannot reach ${base} (${e.message}). Is the backend running on that address?`);
+    throw new Error(t('live.err.unreachable', { base, msg: e.message }));
   }
   let body = null;
   try { body = await res.json(); } catch { /* non-JSON */ }
-  if (!body) throw new Error(`HTTP ${res.status} from ${path} (no JSON body)`);
+  if (!body) throw new Error(t('live.err.noBody', { status: res.status, path }));
   if (body.success === false || (!res.ok && body.success !== true)) {
-    throw new Error(body.error || `HTTP ${res.status} from ${path}`);
+    throw new Error(body.error || t('live.err.http', { status: res.status, path }));
   }
   return body.data !== undefined ? body.data : body;
 }
@@ -281,7 +282,7 @@ export function createLiveClient(baseUrl = 'http://localhost:5001') {
     disconnect();
     if (newBase) base = newBase.replace(/\/+$/, '');
     simId = String(id || '').trim();
-    if (!simId) throw new Error('Simulation id is required.');
+    if (!simId) throw new Error(t('live.err.noSim'));
     setStatus('connecting');
     try {
       await api(base, '/health'); // plain {status:'ok'} (no success flag)
@@ -291,7 +292,7 @@ export function createLiveClient(baseUrl = 'http://localhost:5001') {
       const prof = await api(base, `/api/simulation/${encodeURIComponent(simId)}/profiles?platform=reddit`).catch(() => null);
       const profiles = prof?.profiles || [];
       if (!profiles.length && !(config?.agent_configs || []).length) {
-        throw new Error('Simulation has no agent profiles or config yet (prepare the simulation first).');
+        throw new Error(t('live.err.notPrepared'));
       }
       counters = { twitter: 0, reddit: 0 };
       followSet = new Set();
@@ -328,17 +329,17 @@ export function createLiveClient(baseUrl = 'http://localhost:5001') {
     const d = await api(base, '/api/simulation/interview', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     });
-    if (d && d.success === false) throw new Error(d.error || 'Interview failed');
+    if (d && d.success === false) throw new Error(d.error || t('live.err.interview'));
     const inner = d.result || d;
     const out = [];
     if (inner.platforms) {
       for (const [p, v] of Object.entries(inner.platforms)) {
-        if (v && (v.response || v.error)) out.push({ platform: p, response: v.response || `(error) ${v.error}` });
+        if (v && (v.response || v.error)) out.push({ platform: p, response: v.response || t('live.err.respErr', { err: v.error }) });
       }
     } else if (inner.response) {
       out.push({ platform: inner.platform || platform || '', response: inner.response });
     }
-    if (!out.length) throw new Error('Agent returned no response.');
+    if (!out.length) throw new Error(t('live.err.noResponse'));
     return out;
   }
 

@@ -1,11 +1,13 @@
 // Swarm Town — main.js : boot. Creates the engine, wires bus commands, loads UI (optional) and data.
 import { bus, emit, on } from './bus.js';
 import { createEngine } from './engine.js';
+import { t, onLangChange } from './i18n.js';
 
 const container = document.getElementById('game-canvas');
 const canvas = document.createElement('canvas');
 canvas.id = 'town';
-canvas.setAttribute('aria-label', 'Swarm Town map');
+const applyLang = () => { canvas.setAttribute('aria-label', t('canvas.aria')); document.title = t('app.title'); container.setAttribute('aria-label', t('canvas.aria')); };
+applyLang(); onLangChange(applyLang);
 Object.assign(canvas.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' });
 if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
 container.style.overflow = 'hidden';

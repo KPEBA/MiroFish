@@ -140,11 +140,11 @@ export function buildWorld(data) {
     else if (!inPark && h < 0.14) placeTree(ax, ay);
     else if (h < 0.24) deco[I(ax, ay)] = 1;
   }
-  labels.push({ text: 'Forum Hall', x: forum.x + forum.img.width / 2, y: forum.y + 2, kind: 'building' });
-  labels.push({ text: 'Library', x: library.x + library.img.width / 2, y: library.y + 4, kind: 'building' });
-  labels.push({ text: 'Cafe', x: cafe.x + cafe.img.width / 2, y: cafe.y + 2, kind: 'building' });
-  labels.push({ text: 'Plaza', x: (coreX0 + 21) * TILE, y: (coreY0 + 21.6) * TILE, kind: 'place' });
-  labels.push({ text: 'Park', x: (coreX0 + 21) * TILE, y: (coreY0 + 27.2) * TILE, kind: 'place' });
+  labels.push({ key: 'place.forum', text: 'Forum Hall', x: forum.x + forum.img.width / 2, y: forum.y + 2, kind: 'building' });
+  labels.push({ key: 'place.library', text: 'Library', x: library.x + library.img.width / 2, y: library.y + 4, kind: 'building' });
+  labels.push({ key: 'place.cafe', text: 'Cafe', x: cafe.x + cafe.img.width / 2, y: cafe.y + 2, kind: 'building' });
+  labels.push({ key: 'place.plaza', text: 'Plaza', x: (coreX0 + 21) * TILE, y: (coreY0 + 21.6) * TILE, kind: 'place' });
+  labels.push({ key: 'place.park', text: 'Park', x: (coreX0 + 21) * TILE, y: (coreY0 + 27.2) * TILE, kind: 'place' });
 
   // ================= DISTRICT BLOCKS & NATURE CELLS
   const cells = [];
@@ -255,7 +255,7 @@ export function buildWorld(data) {
     if (y < H - 6) {
       for (let k = -1; k < 6; k++) { setT(dx, y + k, T.DOCK); setT(dx + 1, y + k, T.DOCK); }
       for (let yy = oy + townH; yy < y; yy++) { if (getT(dx, yy) === T.GRASS || getT(dx, yy) === T.SAND) { setT(dx, yy, T.PATH); setT(dx + 1, yy, T.PATH); noTree[I(dx, yy)] = noTree[I(dx + 1, yy)] = 1; } }
-      labels.push({ text: 'Pier', x: (dx + 1) * TILE, y: (y + 6.5) * TILE, kind: 'place' });
+      labels.push({ key: 'place.pier', text: 'Pier', x: (dx + 1) * TILE, y: (y + 6.5) * TILE, kind: 'place' });
     }
   }
 

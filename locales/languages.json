@@ -7,6 +7,10 @@
     "label": "English",
     "llmInstruction": "Please respond in English."
   },
+  "uk": {
+    "label": "Українська",
+    "llmInstruction": "Будь ласка, відповідайте українською мовою."
+  },
   "es": {
     "label": "Español",
     "llmInstruction": "Por favor, responde en español."

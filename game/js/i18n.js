@@ -1,0 +1,211 @@
+// Swarm Town — i18n.js : tiny dictionary-based localisation (uk default, en option).
+// t(key, vars)  vars.n selects a plural form when the entry is {one, few, many, other}.
+const KEY = 'st.lang';
+const LANGS = ['uk', 'en'];
+
+const uk = {
+  'app.title': 'Містечко Рою',
+  'app.noSim': 'Симуляцію не завантажено',
+  'lang.title': 'Мова інтерфейсу',
+  'top.clock': 'Змодельований час',
+  'top.day': 'День {day}',
+  'top.play': 'Грати / пауза (Пробіл)', 'top.playAria': 'Грати або пауза',
+  'top.pauseLbl': 'Пауза', 'top.playLbl': 'Грати',
+  'top.speed': 'Швидкість', 'top.speedTip': 'Швидкість {s}× ({i})',
+  'top.prev': 'Попередній раунд (←)', 'top.prevAria': 'Попередній раунд',
+  'top.next': 'Наступний раунд (→)', 'top.nextAria': 'Наступний раунд',
+  'top.round': 'Р {r}/{total}', 'top.roundTip': 'Раунд {r} з {total}',
+  'top.live': '📡 Наживо', 'top.liveOn': '🔴 Наживо', 'top.liveErr': '📡 Наживо ⚠',
+  'top.liveTip': 'Підключитися до запущеного бекенду MiroFish',
+  'top.load': '📂 Завантажити дані', 'top.loadTip': 'Завантажити файл town_data.json',
+  'phase.night': 'Ніч', 'phase.morning': 'Ранок', 'phase.day': 'День', 'phase.evening': 'Вечір',
+  'tab.feed': 'Стрічка', 'tab.agent': 'Агент', 'tab.stats': 'Місто', 'tab.god': 'Режим бога',
+  'sheet.toggle': 'Розгорнути або згорнути панель',
+  'feed.fAgent': 'Фільтр за агентом', 'feed.fPlat': 'Фільтр за місцем', 'feed.fType': 'Фільтр за типом',
+  'feed.allAgents': 'Усі агенти', 'feed.allPlaces': 'Усі місця',
+  'feed.empty': 'У місті тихо. Натисніть «Грати», щоб побачити, що відбувається.',
+  'feed.agentN': 'Агент {id}', 'feed.god': 'БОГ',
+  'plat.twitter': 'Площа', 'plat.reddit': 'Форум',
+  'plat.twitterFull': 'Міська площа', 'plat.redditFull': 'Форум',
+  'ftype.default': 'Усі дії', 'ftype.POST': 'Дописи', 'ftype.COMMENT': 'Коментарі', 'ftype.LIKE': 'Вподобайки',
+  'ftype.DISLIKE': 'Невподобайки', 'ftype.REPOST': 'Поширення/цитати', 'ftype.FOLLOW': 'Підписки', 'ftype.GOD': 'Події бога', 'ftype.IDLE': 'Відпочинок',
+  'verb.POST': 'опублікував', 'verb.COMMENT': 'прокоментував', 'verb.LIKE': 'вподобав допис', 'verb.DISLIKE': 'не вподобав допис',
+  'verb.REPOST': 'поширив', 'verb.QUOTE': 'процитував', 'verb.FOLLOW': 'підписався', 'verb.MUTE': 'заглушив',
+  'verb.SEARCH': 'шукав', 'verb.TREND': 'переглянув тренди', 'verb.IDLE': 'відпочиває',
+  'stance.supportive': 'прихильник', 'stance.opposing': 'опонент', 'stance.neutral': 'нейтральний', 'stance.observer': 'спостерігач',
+  'stanceP.supportive': 'прихильники', 'stanceP.opposing': 'опоненти', 'stanceP.neutral': 'нейтральні', 'stanceP.observer': 'спостерігачі',
+  'ag.empty': 'Клацніть на агента в місті або в стрічці, щоб переглянути його.',
+  'ag.deselect': 'Зняти вибір (Esc)', 'ag.deselectAria': 'Зняти вибір',
+  'ag.age': '{n} р.', 'ag.persona': 'Особистість', 'ag.moodTip': 'Настрій (−1 похмурий … +1 радісний)',
+  'ag.follow': ' 🎥 Стежити камерою',
+  'ag.recent': 'Останні дії', 'ag.none': 'Поки нічого.', 'ag.rel': 'Стосунки', 'ag.followers': 'Підписники', 'ag.following': 'Підписки', 'ag.noneShort': 'немає',
+  'ag.ask': 'Запитати агента', 'ag.askPh': 'Запитати {name}…', 'ag.askAria': 'Запитання до агента', 'ag.askBtn': 'Запитати',
+  'ag.you': 'Ви', 'ag.error': 'Помилка',
+  'ag.hintOn': 'Інтерв’ю потребують, щоб середовище симуляції ще працювало на бекенді (воно чекає на команди після завершення запуску). Відповіді можуть надходити до хвилини.',
+  'ag.hintOff': 'Інтерв’ю доступні лише під час підключення до живої симуляції MiroFish (кнопка «Наживо»). Файли повтору не можуть відповідати на запитання.',
+  'st.posts': 'Дописи', 'st.likes': 'Вподобайки', 'st.comments': 'Коментарі', 'st.follows': 'Підписки', 'st.followers': 'Підписники',
+  'st.agents': 'Агенти', 'st.actions': 'Дії',
+  'st.noData': 'Дані не завантажено.', 'st.byStance': 'Населення за позицією', 'st.byType': 'Населення за типом',
+  'st.perRound': 'Дії за раунд', 'st.perRoundAria': 'Дії за раунд', 'st.top': 'Найкращі дописи', 'st.noPosts': 'Поки немає дописів.',
+  'st.words': 'Популярні слова', 'st.noWords': 'Поки нічого не в тренді.', 'st.infl': 'Найвпливовіші', 'st.noInfl': 'Поки немає впливових.',
+  'st.score': ' · рейтинг {score} · {followers}', 'st.max': 'макс {n}',
+  'n.followers': { one: '{n} підписник', few: '{n} підписники', many: '{n} підписників', other: '{n} підписника' },
+  'n.posts': { one: '{n} допис', few: '{n} дописи', many: '{n} дописів', other: '{n} допису' },
+  'n.threads': { one: '{n} гілка', few: '{n} гілки', many: '{n} гілок', other: '{n} гілки' },
+  'n.actions': { one: '{n} дія', few: '{n} дії', many: '{n} дій', other: '{n} дії' },
+  'n.likes': { one: '{n} вподобайка', few: '{n} вподобайки', many: '{n} вподобайок', other: '{n} вподобайки' },
+  'n.rounds': { one: '{n} раунд', few: '{n} раунди', many: '{n} раундів', other: '{n} раунду' },
+  'god.intro1': 'Пограйте з містом. Події ', 'god.intro2': 'суто візуальні в повторі', 'god.intro3': ' — вони розходяться картою та фіксуються в стрічці, але не змінюють записаних даних симуляції.',
+  'god.rumorH': '🗣️ Пустити чутку', 'god.rumorPh': 'Над площею бачили дивне світло…', 'god.rumorAria': 'Текст чутки',
+  'god.rumorDefault': 'Містом ширяться загадкові чутки…', 'god.whisper': 'Шепнути',
+  'god.weather': '🌦️ Погода', 'god.rain': '🌧️ Дощ', 'god.snow': '❄️ Сніг', 'god.clear': '☀️ Ясно',
+  'god.rainMsg': 'Починається дощ 🌧️', 'god.snowMsg': 'Сніг вкриває місто ❄️', 'god.clearMsg': 'Небо розчищається ☀️',
+  'god.festival': '🎉 Свято', 'god.festivalBtn': '🎉 Почати свято', 'god.festivalMsg': 'На площі починається свято 🎉',
+  'god.bannerSnow': 'БОГ · Сніг', 'god.bannerRain': 'БОГ · Дощ', 'god.bannerFestival': 'БОГ · Свято', 'god.bannerRumor': 'БОГ · Чутка',
+  'tl.aria': 'Часова шкала', 'tl.day': 'День {day}', 'tl.spike': ' ⚡ сплеск', 'tl.tip': 'Р{r} · Д{day} {time} · {actions}', 'tl.short': 'Д{day} {time}', 'tl.r': 'Р{r}',
+  'toast.loaded': 'Завантажено {name}', 'toast.loadFail': 'Не вдалося завантажити файл: {err}', 'toast.badFile': 'Бракує meta / agents / rounds — це не town_data.json',
+  'toast.likes': '{who} щойно набрав {likes}: «{text}»', 'toast.whoPost': 'Допис агента {name}', 'toast.aPost': 'Допис',
+  'toast.bridge': '{f} ({fs}) підписався на {t} ({ts}) — міст через прірву!',
+  'live.title': 'Підключення до живої симуляції', 'live.h': '📡 Підключитися до живої симуляції',
+  'live.intro': 'Спостерігайте за запущеною симуляцією MiroFish наживо. Гра опитує бекенд кожні 3 секунди.',
+  'live.url': 'URL бекенду', 'live.sim': 'ID симуляції', 'live.connect': 'Підключитися', 'live.disconnect': 'Відключитися', 'live.close': 'Закрити',
+  'live.st.disconnected': 'Не підключено.', 'live.st.connecting': 'Перевірка бекенду…', 'live.st.loading': 'Завантаження конфігурації та профілів…',
+  'live.st.connected': 'Підключено до {sim}. Очікування раундів…',
+  'live.st.running': 'Наживо: {status} · раунд {cur}/{total} · імпортовано: {rounds}',
+  'live.st.completed': 'Симуляцію завершено · імпортовано: {rounds}', 'live.st.stopped': 'Симуляцію зупинено · імпортовано: {rounds}',
+  'live.st.idle': 'Підключено; симуляція не запущена · імпортовано: {rounds}',
+  'live.st.failed': 'Симуляція завершилась помилкою · імпортовано: {rounds}',
+  'live.err.unreachable': 'Не вдається зʼєднатися з {base} ({msg}). Чи запущено бекенд за цією адресою?',
+  'live.err.noBody': 'HTTP {status} від {path} (без JSON у відповіді)', 'live.err.http': 'HTTP {status} від {path}',
+  'live.err.noSim': 'Потрібен ID симуляції.', 'live.err.notPrepared': 'У симуляції ще немає профілів агентів чи конфігурації (спершу підготуйте симуляцію).',
+  'live.err.interview': 'Не вдалося провести інтерв’ю', 'live.err.noResponse': 'Агент не дав відповіді.', 'live.err.respErr': '(помилка) {err}',
+  'place.plaza': 'Площа', 'place.forum': 'Форум-хол', 'place.cafe': 'Кав’ярня', 'place.library': 'Бібліотека', 'place.park': 'Парк', 'place.pier': 'Причал',
+  'place.plazaThe': 'на площу', 'place.forumThe': 'до форум-холу', 'place.cafeThe': 'до кав’ярні', 'place.libraryThe': 'до бібліотеки', 'place.parkThe': 'до парку',
+  'place.board': 'Дошка оголошень · {posts}', 'place.forumTag': 'Форум-хол · {threads}',
+  'canvas.loading': 'Будуємо Містечко Рою…', 'canvas.aria': 'Мапа Містечка Рою',
+  'act.POST': 'пише допис', 'act.QUOTE': 'цитує допис', 'act.COMMENT': 'коментує', 'act.LIKE': 'вподобає допис', 'act.DISLIKE': 'не вподобає допис',
+  'act.REPOST': 'поширює', 'act.FOLLOW': 'підписується на когось', 'act.MUTE': 'ігнорує когось', 'act.SEARCH': 'шукає в бібліотеці',
+  'act.TREND': 'дивиться тренди', 'act.IDLE': 'робить перерву',
+  'act.joinPlaza': 'приєднується до натовпу на площі', 'act.walkTo': 'йде {place}', 'act.headTo': 'прямує до {name}', 'act.move': 'в дорозі',
+  'act.idle': 'нічого не робить', 'act.sleeping': 'спить', 'act.hanging': 'тиняється', 'act.home': 'іде додому спати', 'act.woke': 'щойно прокинувся',
+  'act.stroll': 'прогулюється', 'act.potter': 'порається біля дому', 'act.wander': 'прямує {place}', 'act.festival': 'святкує на фестивалі',
+};
+
+const en = {
+  'app.title': 'Swarm Town',
+  'app.noSim': 'No simulation loaded',
+  'lang.title': 'Interface language',
+  'top.clock': 'Simulated time',
+  'top.day': 'Day {day}',
+  'top.play': 'Play / pause (Space)', 'top.playAria': 'Play or pause',
+  'top.pauseLbl': 'Pause', 'top.playLbl': 'Play',
+  'top.speed': 'Speed', 'top.speedTip': 'Speed {s}× ({i})',
+  'top.prev': 'Previous round (←)', 'top.prevAria': 'Previous round',
+  'top.next': 'Next round (→)', 'top.nextAria': 'Next round',
+  'top.round': 'R {r}/{total}', 'top.roundTip': 'Round {r} of {total}',
+  'top.live': '📡 Live', 'top.liveOn': '🔴 Live', 'top.liveErr': '📡 Live ⚠',
+  'top.liveTip': 'Connect to a running MiroFish backend',
+  'top.load': '📂 Load data', 'top.loadTip': 'Load a town_data.json file',
+  'phase.night': 'Night', 'phase.morning': 'Morning', 'phase.day': 'Day', 'phase.evening': 'Evening',
+  'tab.feed': 'Feed', 'tab.agent': 'Agent', 'tab.stats': 'Town', 'tab.god': 'God',
+  'sheet.toggle': 'Expand or collapse panel',
+  'feed.fAgent': 'Filter by agent', 'feed.fPlat': 'Filter by platform', 'feed.fType': 'Filter by type',
+  'feed.allAgents': 'All agents', 'feed.allPlaces': 'All places',
+  'feed.empty': 'The town is quiet. Press play to watch what happens.',
+  'feed.agentN': 'Agent {id}', 'feed.god': 'GOD',
+  'plat.twitter': 'Square', 'plat.reddit': 'Forum',
+  'plat.twitterFull': 'Town Square', 'plat.redditFull': 'Forum',
+  'ftype.default': 'All actions', 'ftype.POST': 'Posts', 'ftype.COMMENT': 'Comments', 'ftype.LIKE': 'Likes',
+  'ftype.DISLIKE': 'Dislikes', 'ftype.REPOST': 'Reposts/quotes', 'ftype.FOLLOW': 'Follows', 'ftype.GOD': 'God events', 'ftype.IDLE': 'Idle',
+  'verb.POST': 'posted', 'verb.COMMENT': 'commented', 'verb.LIKE': 'liked a post', 'verb.DISLIKE': 'disliked a post',
+  'verb.REPOST': 'reposted', 'verb.QUOTE': 'quoted', 'verb.FOLLOW': 'followed', 'verb.MUTE': 'muted',
+  'verb.SEARCH': 'searched', 'verb.TREND': 'checked trends', 'verb.IDLE': 'is idle',
+  'stance.supportive': 'supportive', 'stance.opposing': 'opposing', 'stance.neutral': 'neutral', 'stance.observer': 'observer',
+  'stanceP.supportive': 'supportive', 'stanceP.opposing': 'opposing', 'stanceP.neutral': 'neutral', 'stanceP.observer': 'observer',
+  'ag.empty': 'Click an agent in the town or in the feed to inspect them.',
+  'ag.deselect': 'Deselect (Esc)', 'ag.deselectAria': 'Deselect',
+  'ag.age': '{n} y/o', 'ag.persona': 'Persona', 'ag.moodTip': 'Mood (-1 grumpy … +1 happy)',
+  'ag.follow': ' 🎥 Follow camera',
+  'ag.recent': 'Recent actions', 'ag.none': 'Nothing yet.', 'ag.rel': 'Relationships', 'ag.followers': 'Followers', 'ag.following': 'Following', 'ag.noneShort': 'none',
+  'ag.ask': 'Ask this agent', 'ag.askPh': 'Ask {name}…', 'ag.askAria': 'Question for agent', 'ag.askBtn': 'Ask',
+  'ag.you': 'You', 'ag.error': 'Error',
+  'ag.hintOn': 'Interviews need the simulation environment to still be alive on the backend (it waits for commands after the run finishes). Answers can take up to a minute.',
+  'ag.hintOff': 'Interviews are only available when connected to a live MiroFish simulation (use the “Live” button). Replay files cannot answer questions.',
+  'st.posts': 'Posts', 'st.likes': 'Likes', 'st.comments': 'Comments', 'st.follows': 'Follows', 'st.followers': 'Followers',
+  'st.agents': 'Agents', 'st.actions': 'Actions',
+  'st.noData': 'No data loaded.', 'st.byStance': 'Population by stance', 'st.byType': 'Population by type',
+  'st.perRound': 'Actions per round', 'st.perRoundAria': 'Actions per round', 'st.top': 'Top posts', 'st.noPosts': 'No posts yet.',
+  'st.words': 'Trending words', 'st.noWords': 'Nothing trending yet.', 'st.infl': 'Most influential', 'st.noInfl': 'No influence yet.',
+  'st.score': ' · score {score} · {followers}', 'st.max': 'max {n}',
+  'n.followers': { one: '{n} follower', other: '{n} followers' },
+  'n.posts': { one: '{n} post', other: '{n} posts' },
+  'n.threads': { one: '{n} thread', other: '{n} threads' },
+  'n.actions': { one: '{n} action', other: '{n} actions' },
+  'n.likes': { one: '{n} like', other: '{n} likes' },
+  'n.rounds': { one: '{n} round', other: '{n} rounds' },
+  'god.intro1': 'Play with the town. Events are ', 'god.intro2': 'purely visual in replay', 'god.intro3': ' — they ripple across the map and are logged in the feed, but they do not change the recorded simulation data.',
+  'god.rumorH': '🗣️ Spread a rumor', 'god.rumorPh': 'A strange light was seen over the plaza…', 'god.rumorAria': 'Rumor text',
+  'god.rumorDefault': 'A mysterious rumor spreads…', 'god.whisper': 'Whisper',
+  'god.weather': '🌦️ Weather', 'god.rain': '🌧️ Rain', 'god.snow': '❄️ Snow', 'god.clear': '☀️ Clear',
+  'god.rainMsg': 'Rain begins to fall 🌧️', 'god.snowMsg': 'Snow blankets the town ❄️', 'god.clearMsg': 'The sky clears ☀️',
+  'god.festival': '🎉 Festival', 'god.festivalBtn': '🎉 Start festival', 'god.festivalMsg': 'A festival begins in the plaza 🎉',
+  'god.bannerSnow': 'GOD · Snow', 'god.bannerRain': 'GOD · Rain', 'god.bannerFestival': 'GOD · Festival', 'god.bannerRumor': 'GOD · Rumor',
+  'tl.aria': 'Timeline', 'tl.day': 'Day {day}', 'tl.spike': ' ⚡ spike', 'tl.tip': 'R{r} · D{day} {time} · {actions}', 'tl.short': 'D{day} {time}', 'tl.r': 'R{r}',
+  'toast.loaded': 'Loaded {name}', 'toast.loadFail': 'Could not load file: {err}', 'toast.badFile': 'Missing meta / agents / rounds — not a town_data.json',
+  'toast.likes': '{who} just hit {likes}: “{text}”', 'toast.whoPost': '{name}’s post', 'toast.aPost': 'A post',
+  'toast.bridge': '{f} ({fs}) followed {t} ({ts}) — a bridge across the divide!',
+  'live.title': 'Connect to live simulation', 'live.h': '📡 Connect to a live simulation',
+  'live.intro': 'Watch a running MiroFish simulation as it happens. The game polls the backend every 3 seconds.',
+  'live.url': 'Backend URL', 'live.sim': 'Simulation ID', 'live.connect': 'Connect', 'live.disconnect': 'Disconnect', 'live.close': 'Close',
+  'live.st.disconnected': 'Not connected.', 'live.st.connecting': 'Checking backend…', 'live.st.loading': 'Loading config and profiles…',
+  'live.st.connected': 'Connected to {sim}. Waiting for rounds…',
+  'live.st.running': 'Live: {status} · round {cur}/{total} · {rounds} imported',
+  'live.st.completed': 'Simulation completed · {rounds} imported', 'live.st.stopped': 'Simulation stopped · {rounds} imported',
+  'live.st.idle': 'Connected; simulation is idle (not started) · {rounds} imported',
+  'live.st.failed': 'Simulation failed · {rounds} imported',
+  'live.err.unreachable': 'Cannot reach {base} ({msg}). Is the backend running on that address?',
+  'live.err.noBody': 'HTTP {status} from {path} (no JSON body)', 'live.err.http': 'HTTP {status} from {path}',
+  'live.err.noSim': 'Simulation id is required.', 'live.err.notPrepared': 'Simulation has no agent profiles or config yet (prepare the simulation first).',
+  'live.err.interview': 'Interview failed', 'live.err.noResponse': 'Agent returned no response.', 'live.err.respErr': '(error) {err}',
+  'place.plaza': 'Plaza', 'place.forum': 'Forum Hall', 'place.cafe': 'Cafe', 'place.library': 'Library', 'place.park': 'Park', 'place.pier': 'Pier',
+  'place.plazaThe': 'to the Plaza', 'place.forumThe': 'to the Forum Hall', 'place.cafeThe': 'to the Cafe', 'place.libraryThe': 'to the Library', 'place.parkThe': 'to the Park',
+  'place.board': 'Noticeboard · {posts}', 'place.forumTag': 'Forum Hall · {threads}',
+  'canvas.loading': 'Building Swarm Town…', 'canvas.aria': 'Swarm Town map',
+  'act.POST': 'posting', 'act.QUOTE': 'quoting a post', 'act.COMMENT': 'commenting', 'act.LIKE': 'liking a post', 'act.DISLIKE': 'disliking a post',
+  'act.REPOST': 'reposting', 'act.FOLLOW': 'following someone', 'act.MUTE': 'muting someone', 'act.SEARCH': 'searching at the Library',
+  'act.TREND': 'checking trends', 'act.IDLE': 'taking a break',
+  'act.joinPlaza': 'joining the crowd at the Plaza', 'act.walkTo': 'walking {place}', 'act.headTo': 'heading to {name}', 'act.move': 'on the move',
+  'act.idle': 'idle', 'act.sleeping': 'sleeping', 'act.hanging': 'hanging around', 'act.home': 'heading home to sleep', 'act.woke': 'just woke up',
+  'act.stroll': 'strolling', 'act.potter': 'pottering around home', 'act.wander': 'wandering {place}', 'act.festival': 'celebrating at the festival',
+};
+const DICT = { uk, en };
+
+function readLang() {
+  try { const v = localStorage.getItem(KEY); if (LANGS.includes(v)) return v; } catch { /* storage may throw */ }
+  return 'uk';
+}
+let lang = readLang();
+const listeners = new Set();
+const rules = {};
+const rule = () => rules[lang] || (rules[lang] = new Intl.PluralRules(lang));
+try { document.documentElement.lang = lang; } catch { /* ignore */ }
+
+export function getLang() { return lang; }
+export function setLang(l) {
+  if (!LANGS.includes(l) || l === lang) return;
+  lang = l;
+  try { localStorage.setItem(KEY, l); } catch { /* ignore */ }
+  try { document.documentElement.lang = l; } catch { /* ignore */ }
+  for (const fn of [...listeners]) { try { fn(l); } catch (e) { console.error(e); } }
+}
+export function onLangChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+
+export function t(key, vars) {
+  let v = DICT[lang][key] ?? DICT.en[key];
+  if (v == null) return key;
+  if (typeof v === 'object') v = v[rule().select(vars && vars.n)] ?? v.other;
+  return vars ? v.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)) : v;
+}
+
+// CamelCase / snake_case type names -> "Camel Case"
+export function prettyType(s) { return String(s || '').replace(/[_-]+/g, ' ').replace(/([a-z0-9])([A-Z])/g, '$1 $2'); }
