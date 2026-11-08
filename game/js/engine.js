@@ -7,6 +7,7 @@ import {
   TILE, getCharacter, clearCharacterCache, getIcon, ACTION_ICON, STANCE_COLORS, drawBubble, drawTag, wrapText, getGlow,
   mulberry32, hashStr, makeCanvas, UI_FONT, TAG_FONT, OUTLINE,
 } from './sprites.js';
+import { getColossus, COLOSSUS_FRAMES, COLOSSUS_W, makeBreachDecal, makeTent as makeCampTent, makeHerald } from './walls_sprites.js';
 
 export const ROUND_SECONDS = 6;         // game-seconds per round at speed 1
 const WALK = 3.0;                        // tiles / game-second
@@ -16,7 +17,15 @@ const PLATFORM_PLACE = { twitter: 'plaza', reddit: 'forum' };
 // Activities are stored as {k, v} keys so they can be translated at read time (language may change mid-play).
 const ICON_ACT = { POST: 1, QUOTE: 1, COMMENT: 1, LIKE: 1, DISLIKE: 1, REPOST: 1, FOLLOW: 1, MUTE: 1, SEARCH: 1, TREND: 1, IDLE: 1 };
 const A = (k, v) => ({ k, v });
-const activityText = a => (a && typeof a === 'object' ? t(a.k, a.v && a.v.place ? { ...a.v, place: t('place.' + a.v.place + 'The') } : a.v) : String(a || ''));
+let placePrefix = 'place.';
+const activityText = a => (a && typeof a === 'object' ? t(a.k, a.v && a.v.place ? { ...a.v, place: t(placePrefix + a.v.place + 'The') } : a.v) : String(a || ''));
+// three_walls world events: how many rounds each one stays visible
+const EV_DUR = { sighting: 6, alarm: 3, breach: 4, evacuation: 5, expedition_out: 1, expedition_back: 2, shortage: 4, riot: 3, decree: 2, fire: 4 };
+const EV_STYLE = {
+  sighting: ['#3d4a5c', 'eye'], alarm: ['#a3332a', 'bell'], breach: ['#7a2420', 'exclaim'], evacuation: ['#9a6a2a', 'exclaim'],
+  expedition_out: ['#3f5a3a', 'star'], expedition_back: ['#3f5a3a', 'star'], shortage: ['#7a5a32', 'sack'], riot: ['#b0452a', 'angry'],
+  decree: ['#4a2e5a', 'scroll'], fire: ['#c0561e', 'fire'],
+};
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -44,6 +53,12 @@ export function createEngine(canvas) {
   const cam = { x: 0, y: 0, z: 2, tx: null, ty: null };
   let pathBudget = 0;
   let minutesPerRound = 60;
+  // three_walls theme state
+  let W3 = false;
+  let wEvents = [], godWEvents = [], godSeq = 0;
+  let wparticles = [], colossiNow = [], gatesClosed = false, alarmLvl = 0;
+  const decalCache = new Map();
+  let tentSprites = null, heraldImg = null;
 
   // ------------------------------------------------------------ helpers
   const tileOf = a => ({ x: Math.floor(a.x / TILE), y: Math.floor(a.y / TILE) });
@@ -76,8 +91,9 @@ export function createEngine(canvas) {
     const home = world.homes.get(d.id);
     const door = home ? home.door : world.plazaCenter;
     const base = clamp((+d.sentiment_bias || 0) * 0.5, -1, 1);
+    const ring = W3 ? (world.agentRing.get(d.id) || 'outer') : null;
     return {
-      id: d.id, d, i, rnd, sprite: getCharacter(d.id), home: door, homeObj: home && home.house,
+      id: d.id, d, i, rnd, sprite: getCharacter(d.id, ring), home: door, homeObj: home && home.house, ring, ov: null, away: false,
       x: door.x * TILE + 8, y: door.y * TILE + 12, path: null, pi: 0, dir: 0, walkPhase: 0, moving: false, mul: 1,
       queue: [], task: null, sleeping: false, bubble: null, mood: base, base,
       stats: freshStats(), lastAction: null, activity: A('act.idle'), wanderT: rnd() * 3, offX: Math.round(rnd() * 6 - 3), offY: Math.round(rnd() * 4 - 2),
@@ -125,6 +141,10 @@ export function createEngine(canvas) {
     const plat = act.platform === 'reddit' ? 'reddit' : 'twitter';
     const P = world.places;
     const hot = hype && act.post_id && hype.postId === act.post_id;
+    if (W3) {
+      if ((act.type === 'POST' || act.type === 'QUOTE') && a.ring === 'inner') { a.place = 'council'; return pickSpot(P.council.spots, a.rnd); }
+      if (act.type === 'IDLE') { const k = pickSpot(world.ringPlaces[a.ring] || world.ringPlaces.outer, a.rnd); a.place = k; return pickSpot(P[k].spots, a.rnd); }
+    }
     switch (act.type) {
       case 'POST': case 'QUOTE':
         a.place = PLATFORM_PLACE[plat];
@@ -192,7 +212,7 @@ export function createEngine(canvas) {
     a.sleeping = false; a.goingHome = false;
     const dest = destinationFor(a, act);
     const remaining = Math.max(0.25, ROUND_SECONDS - roundT - 0.25);
-    const budget = a.queue.length >= 2 ? 0.15 : Math.min(2.2, remaining * 0.8);
+    const budget = a.away ? 0 : a.queue.length >= 2 ? 0.15 : Math.min(2.2, remaining * 0.8);
     a.task = { entry, phase: 'walk', el: 0, budget, linger: 0 };
     if (budget > 0.2 && dest) { setPath(a, dest, 1, budget); pathBudget--; }
     else { a.path = null; a.moving = false; }
@@ -237,6 +257,7 @@ export function createEngine(canvas) {
     });
     schedPtr = 0;
     emit('round', roundInfo(idx));
+    if (W3 && rounds[idx]) for (const ev of allEvents()) if (ev.round === rounds[idx].round && !ev.god) fireWorldEvent(ev, true);
     emitState();
   }
   function endRound() {
@@ -256,7 +277,9 @@ export function createEngine(canvas) {
     for (const a of agents) {
       a.stats = freshStats(); a.mood = a.base; a.lastAction = null; a.queue.length = 0; a.task = null; a.bubble = null;
       a.path = null; a.moving = false; a.activity = A('act.idle'); a.place = null; a.goingHome = false;
+      a.ov = null; a.away = false;
     }
+    wparticles = [];
   }
   function seek(round, opts = {}) {
     if (!data || !rounds.length) return;
@@ -281,6 +304,7 @@ export function createEngine(canvas) {
         a.activity = a.lastAction ? A('act.hanging') : A('act.idle');
       }
     }
+    if (W3) { if (teleport && banner && banner.sub != null) banner = null; rederiveEvents(rounds[idx] ? rounds[idx].round : 0, teleport); }
     startRound(idx);
   }
   function placeAt(a, t) { a.x = t.x * TILE + 8 + a.offX; a.y = t.y * TILE + 12 + a.offY; a.path = null; a.moving = false; }
@@ -315,6 +339,7 @@ export function createEngine(canvas) {
     }
     if (!a.task && a.queue.length) { startTask(a, a.queue.shift()); return; }
     if (a.task) return;
+    if (W3 && (a.ov || a.away) && overrideTick(a, dt)) return;
     // idle life
     if (a.moving) { stepAgent(a, dt); if (!a.moving && a.goingHome) { a.sleeping = true; a.goingHome = false; a.activity = A('act.sleeping'); } return; }
     const awake = isAwake(a, hour);
@@ -338,13 +363,16 @@ export function createEngine(canvas) {
     if (hype && r < 0.35) { dest = pickSpot(P.plaza.boardSpots, a.rnd); a.place = 'plaza'; a.activity = A('act.joinPlaza'); }
     else if (r < 0.62) { const t = tileOf(a); dest = world.randomSpotNear(t.x, t.y, 5, a.rnd); a.activity = A('act.stroll'); }
     else if (r < 0.75) { dest = world.randomSpotNear(a.home.x, a.home.y + 1, 4, a.rnd); a.activity = A('act.potter'); }
-    else { const k = ['park', 'cafe', 'plaza', 'park'][Math.floor(a.rnd() * 4)]; dest = pickSpot(P[k].spots, a.rnd); a.place = k; a.activity = A('act.wander', { place: k }); }
+    else { const k = W3 ? pickSpot(world.ringPlaces[a.ring] || world.ringPlaces.outer, a.rnd) : ['park', 'cafe', 'plaza', 'park'][Math.floor(a.rnd() * 4)]; dest = pickSpot(P[k].spots, a.rnd); a.place = k; a.activity = A('act.wander', { place: k }); }
     if (dest) setPath(a, dest, 0.55 + a.rnd() * 0.25);
   }
 
   // ------------------------------------------------------------ camera & input
   const zMin = () => Math.max(1, Math.round(dpr));
   const zMax = () => Math.max(zMin() + 3, Math.round(6 * dpr));
+  const zFloor = () => (W3 ? zMin() / 2 : zMin());   // the walled city allows a half-scale overview
+  const normZ = z => (z < zMin() ? zFloor() : clamp(Math.round(z), zMin(), zMax()));
+  const stepZ = d => (d > 0 ? (cam.z < zMin() ? zMin() : cam.z + 1) : (cam.z <= zMin() ? zFloor() : cam.z - 1));
   function clampCam() {
     if (!world) return;
     const vw = cw / cam.z, vh = ch / cam.z;
@@ -354,7 +382,7 @@ export function createEngine(canvas) {
   const offs = () => ({ ox: Math.round(cw / 2 - cam.x * cam.z), oy: Math.round(ch / 2 - cam.y * cam.z) });
   function screenToWorld(px, py) { const { ox, oy } = offs(); return { x: (px - ox) / cam.z, y: (py - oy) / cam.z }; }
   function zoomAt(newZ, px, py) {
-    newZ = clamp(Math.round(newZ), zMin(), zMax());
+    newZ = normZ(newZ);
     if (newZ === cam.z) return;
     const w = screenToWorld(px, py);
     cam.z = newZ;
@@ -365,6 +393,7 @@ export function createEngine(canvas) {
     let best = null, by = -Infinity;
     for (const a of agents) {
       if (a.sleeping) continue;
+      if (a.away) continue;
       if (wx >= a.x - 7 && wx <= a.x + 7 && wy >= a.y - 20 && wy <= a.y + 3 && a.y > by) { best = a; by = a.y; }
     }
     return best;
@@ -384,7 +413,7 @@ export function createEngine(canvas) {
     if (pinch && pointers.size >= 2) {
       const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      if (d / pinch.d > 1.3) { zoomAt(cam.z + 1, mx, my); pinch.d = d; } else if (d / pinch.d < 0.77) { zoomAt(cam.z - 1, mx, my); pinch.d = d; }
+      if (d / pinch.d > 1.3) { zoomAt(stepZ(1), mx, my); pinch.d = d; } else if (d / pinch.d < 0.77) { zoomAt(stepZ(-1), mx, my); pinch.d = d; }
       return;
     }
     if (drag) {
@@ -416,7 +445,7 @@ export function createEngine(canvas) {
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
     const p = evPos(e);
-    zoomAt(cam.z + (e.deltaY < 0 ? 1 : -1), p.x, p.y);
+    zoomAt(stepZ(e.deltaY < 0 ? 1 : -1), p.x, p.y);
   }, { passive: false });
   canvas.addEventListener('dblclick', e => {
     const p = evPos(e); const w = screenToWorld(p.x, p.y); const h = pickAgent(w.x, w.y);
@@ -431,7 +460,7 @@ export function createEngine(canvas) {
     const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (w !== canvas.width || h !== canvas.height) { canvas.width = w; canvas.height = h; }
     cw = canvas.width; ch = canvas.height;
-    cam.z = clamp(cam.z, zMin(), zMax());
+    cam.z = cam.z < zMin() ? zFloor() : clamp(cam.z, zMin(), zMax());
     clampCam();
   }
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
@@ -497,7 +526,7 @@ export function createEngine(canvas) {
     if (!cw || !ch) resize();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#3a7fb5'; ctx.fillRect(0, 0, cw, ch);
+    ctx.fillStyle = W3 ? '#15171c' : '#3a7fb5'; ctx.fillRect(0, 0, cw, ch);
     if (!world) { drawLoading(); return; }
     // camera follow / glide
     if (followId != null && agentById.has(followId)) { const a = agentById.get(followId); cam.x = lerp(cam.x, a.x, 0.12); cam.y = lerp(cam.y, a.y - 8, 0.12); clampCam(); }
@@ -518,26 +547,30 @@ export function createEngine(canvas) {
       const ph = (realTime * 0.6 + (i % 97) / 97) % 1;
       if (ph < 0.35) { const k = Math.round(ph * 8); ctx.fillRect(tx + 4 + (i % 7), ty + 6 + (i % 5), 1 + (k & 1) * 2, 1); }
     }
-    // festival bunting under objects? drawn after for visibility
-    // y-sorted objects + agents
+    if (W3) drawBreaches(vx0, vy0, vx1, vy1);
+    // y-sorted objects + agents (+ colossi, camp tents, heralds in the walled city)
     const vis = [];
-    for (const a of agents) if (!a.sleeping && a.x > vx0 - 16 && a.x < vx1 + 16 && a.y > vy0 - 8 && a.y < vy1 + 30) vis.push(a);
+    for (const a of agents) if (!a.sleeping && !a.away && a.x > vx0 - 16 && a.x < vx1 + 16 && a.y > vy0 - 8 && a.y < vy1 + 30) vis.push(a);
+    if (W3) collectDynamic(vis, vx0, vy0, vx1, vy1);
     vis.sort((p, q) => p.y - q.y);
     const objs = world.objects;
     let ai = 0;
+    const drawVis = v => (v.draw ? v.draw() : drawAgentSprite(v));
     for (let k = 0; k < objs.length; k++) {
       const o = objs[k];
-      while (ai < vis.length && vis[ai].y + 2 < o.baseY) drawAgentSprite(vis[ai++]);
+      while (ai < vis.length && vis[ai].y + 2 < o.baseY) drawVis(vis[ai++]);
       if (o.x > vx1 || o.y > vy1 || o.x + o.img.width < vx0 || o.y + o.img.height < vy0) continue;
-      ctx.drawImage(o.img, o.x, o.y);
+      ctx.drawImage(o.kind === 'gate' && gatesClosed ? o.imgClosed : o.img, o.x, o.y);
       if (o.kind === 'board') drawBoardPapers(o);
       else if (o.kind === 'fountain') drawFountainFx(o);
+      else if (W3) drawObjectFx(o);
     }
-    while (ai < vis.length) drawAgentSprite(vis[ai++]);
+    while (ai < vis.length) drawVis(vis[ai++]);
 
     drawWorldEffects(z);
+    if (W3) drawFog(z);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    drawLighting(z, ox, oy);
+    if (W3) drawLightingWalls(z, ox, oy); else drawLighting(z, ox, oy);
     drawWeather();
     drawScreenUI(z, ox, oy, vx0, vy0, vx1, vy1);
   }
@@ -692,7 +725,17 @@ export function createEngine(canvas) {
     for (const L of world.labels) {
       if (L.x < vx0 - 100 || L.x > vx1 + 100 || L.y < vy0 - 20 || L.y > vy1 + 20) continue;
       if (L.kind === 'district' && zcss < 2) continue;
+      if (L.kind === 'building' && zcss < 1) continue;
       const [x, y] = S(L.x, L.y);
+      if (L.kind === 'ring') {
+        const lt = (L.text || (L.key ? t(L.key) : '')).toUpperCase();
+        ctx.font = `800 ${L.big ? 18 : 13}px system-ui, sans-serif`;
+        const tw = ctx.measureText(lt).width;
+        ctx.fillStyle = 'rgba(10,10,14,0.6)'; ctx.fillText(lt, x * k - tw / 2 + 1, y * k + 1);
+        ctx.fillStyle = L.big ? 'rgba(232,214,170,0.9)' : 'rgba(214,204,182,0.78)'; ctx.fillText(lt, x * k - tw / 2, y * k);
+        ctx.font = TAG_FONT;
+        continue;
+      }
       if (L.kind === 'place') {
         ctx.font = '800 12px system-ui, sans-serif';
         const lt = L.key ? t(L.key) : L.text;
@@ -703,13 +746,14 @@ export function createEngine(canvas) {
       } else {
         let text = L.key ? t(L.key) : prettyType(L.text);
         if (L.key === 'place.forum') text += '  ·  ' + t('n.threads', { n: board.reddit });
-        drawTag(ctx, x * k, y * k - 2, text, L.kind === 'district' ? L.color : (L.key === 'place.forum' ? '#ff8a3a' : '#f2a65a'), { bg: 'rgba(43,34,51,0.78)' });
+        if (L.counter === 'reddit') text = t(L.key, { threads: t('n.threads', { n: board.reddit }) });
+        drawTag(ctx, x * k, y * k - 2, text, L.kind === 'district' ? L.color : (L.color || (L.key === 'place.forum' ? '#ff8a3a' : '#f2a65a')), { bg: W3 ? 'rgba(20,20,26,0.82)' : 'rgba(43,34,51,0.78)' });
       }
     }
     // noticeboard count badge
     {
       const o = world.board; const [x, y] = S(o.x + o.img.width / 2, o.y);
-      drawTag(ctx, x * k, y * k - 2, t('place.board', { posts: t('n.posts', { n: board.twitter }) }), '#4fb3e8', { bg: 'rgba(43,34,51,0.85)' });
+      if (zcss >= 1 || !W3) drawTag(ctx, x * k, y * k - 2, t(W3 ? 'wplace.board' : 'place.board', { posts: t('n.posts', { n: board.twitter }) }), '#4fb3e8', { bg: 'rgba(43,34,51,0.85)' });
       if (hype) {
         const fi = getIcon('fire');
         const bob = Math.round(Math.sin(realTime * 5) * 2);
@@ -735,7 +779,8 @@ export function createEngine(canvas) {
     }
     // agents: mood pips, tags, bubbles
     const showAllTags = zcss >= 4;
-    const list = agents.filter(a => !a.sleeping && a.x > vx0 - 40 && a.x < vx1 + 40 && a.y > vy0 - 20 && a.y < vy1 + 60).sort((p, q) => p.y - q.y);
+    if (W3) drawEventIcons(S, k, zcss, vx0, vy0, vx1, vy1);
+    const list = agents.filter(a => !a.sleeping && !a.away && a.x > vx0 - 40 && a.x < vx1 + 40 && a.y > vy0 - 20 && a.y < vy1 + 60).sort((p, q) => p.y - q.y);
     // bubble declutter: newest bubbles claim space first; overlapping ones shrink to icon or hide
     {
       const withB = list.filter(a => a.bubble).sort((p, q) => (p.id === selected) - (q.id === selected) || q.bubble.t - p.bubble.t).reverse();
@@ -798,8 +843,10 @@ export function createEngine(canvas) {
       const W = cw / uiScale;
       ctx.font = '700 13px system-ui, sans-serif';
       const text = banner.text;
-      const tw = Math.min(ctx.measureText(text).width, W - 80);
-      const bw = tw + 46, bh = 30, bx = Math.round(W / 2 - bw / 2), by = 12;
+      let tw = Math.min(ctx.measureText(text).width, W - 80);
+      let subLay = null;
+      if (banner.sub) { subLay = banner.subLay || (banner.subLay = wrapText(ctx, banner.sub, Math.min(420, W - 90), 2)); ctx.font = '700 13px system-ui, sans-serif'; tw = Math.min(Math.max(tw, subLay.w), W - 80); }
+      const bw = tw + 46, bh = subLay ? 34 + subLay.lines.length * 14 : 30, bx = Math.round(W / 2 - bw / 2), by = 12;
       ctx.fillStyle = OUTLINE; ctx.fillRect(bx - 2, by, bw + 4, bh); ctx.fillRect(bx, by - 2, bw, bh + 4);
       ctx.fillStyle = banner.color; ctx.fillRect(bx, by, bw, bh);
       ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(bx, by, bw, 3);
@@ -807,7 +854,8 @@ export function createEngine(canvas) {
       ctx.fillStyle = '#fffaf0'; ctx.textBaseline = 'middle';
       let t = text; while (ctx.measureText(t).width > tw && t.length > 3) t = t.slice(0, -2);
       if (t !== text) t = t.slice(0, -1) + '…';
-      ctx.fillText(t, bx + 34, by + bh / 2 + 1);
+      ctx.fillText(t, bx + 34, subLay ? by + 16 : by + bh / 2 + 1);
+      if (subLay) { ctx.font = UI_FONT; ctx.fillStyle = 'rgba(255,246,230,0.9)'; subLay.lines.forEach((l, i) => ctx.fillText(l, bx + 34, by + 34 + i * 14)); }
       ctx.globalAlpha = 1; ctx.textBaseline = 'top';
     }
     ctx.restore();
@@ -868,6 +916,411 @@ export function createEngine(canvas) {
       if (rumor.t > 6) rumor = null;
     }
     if (banner) { banner.t += dt; if (banner.t >= banner.dur) banner = null; }
+    if (W3) ambientWalls(dt);
+  }
+
+
+  // ================================================================ three_walls: world events & visuals
+  let evAll = [];
+  const refreshEvents = () => { evAll = wEvents.concat(godWEvents).sort((p, q) => p.round - q.round); };
+  function allEvents() { return evAll; }
+  const curRound = () => (rounds[roundIdx] ? rounds[roundIdx].round : 0);
+  const evProgress = ev => (curRound() - ev.round) + Math.min(roundT, ROUND_SECONDS) / ROUND_SECONDS;
+  const evActive = ev => { const p = evProgress(ev); return p >= 0 && p < EV_DUR[ev.kind]; };
+  const ringName = r => { const n = data && data.meta && data.meta.world && data.meta.world.rings && data.meta.world.rings[r]; return n || t('wring.' + (r || 'outer')); };
+  const innerOf = r => (r === 'outer' || r === 'beyond' ? 'middle' : r === 'middle' ? 'inner' : null);
+  const evHash = (ev, salt = '') => hashStr(ev.id + salt + (ev.seed || ''));
+  function breachSite(ev) {
+    if (ev._site) return ev._site;
+    const sites = world.breachSites[ev.ring || 'outer'] || world.breachSites.outer;
+    ev._site = sites[evHash(ev) % sites.length];
+    return ev._site;
+  }
+  function fireTarget(ev) {
+    if (ev._target !== undefined) return ev._target;
+    const ring = ev.ring || 'middle';
+    if (ring === 'middle' && world.forges && world.forges.length) { ev._target = world.forges[evHash(ev, 'f') % world.forges.length]; return ev._target; }
+    const list = (world.fireTargets[ring] && world.fireTargets[ring].length ? world.fireTargets[ring] : world.fireTargets.middle) || [];
+    ev._target = list.length ? list[evHash(ev, 'f') % list.length] : null;
+    return ev._target;
+  }
+  function agentsOfRing(ring) { return agents.filter(a => a.ring === ring || (ring === 'outer' && a.ring === 'beyond' && !a.away)); }
+  function pickSome(list, n, ev, salt) { return [...list].sort((p, q) => (hashStr(salt + p.id + ev.id) % 997) - (hashStr(salt + q.id + ev.id) % 997)).slice(0, n); }
+  function setOv(a, ov, live) {
+    a.ov = { arrived: false, wait: 0, rad: 2, mul: 1.2, ...ov };
+    if (a.sleeping) { a.sleeping = false; a.goingHome = false; placeAt(a, a.home); }
+    if (!live) {
+      const s = ov.rad === 0 ? ov.dest : world.randomSpotNear(ov.dest.x, ov.dest.y, Math.max(1, ov.rad), a.rnd);
+      placeAt(a, s); a.ov.arrived = true; a.ov.wait = a.rnd() * 3;
+      if (ov.awayOnArrive) a.away = true;
+    }
+    a.activity = A(ov.act);
+  }
+  function applyEventBehaviors(ev, live) {
+    const until = ev.round + EV_DUR[ev.kind];
+    const ring = ev.ring || 'outer';
+    const awake = a => !a.away;
+    switch (ev.kind) {
+      case 'alarm': case 'sighting':
+        if (live) for (const a of agents) if (!a.sleeping && !a.away) a.alertT = ev.kind === 'alarm' ? 3 : 1.8;
+        break;
+      case 'breach': {
+        const nxt = innerOf(ring);
+        const gates = nxt ? world.gates.filter(g => g.ring === nxt) : [];
+        for (const a of agentsOfRing(ring).filter(awake)) {
+          let dest = world.places.council.spots[0];
+          if (gates.length) { let best = null, bd = Infinity; for (const g of gates) { const d = Math.hypot(g.outside.x * TILE - a.x, g.outside.y * TILE - a.y); if (d < bd) { bd = d; best = g; } } dest = best.outside; }
+          setOv(a, { kind: 'flee', dest, rad: 3, until: until + 1, mul: 2.2, act: 'act.flee' }, live);
+          if (live) a.alertT = 2.5;
+        }
+        if (live) spawnDust(ev, 140);
+        break;
+      }
+      case 'evacuation': {
+        const camp = world.camps[ring] || world.camps.outer;
+        for (const a of agentsOfRing(ring).filter(awake)) setOv(a, { kind: 'evac', dest: pickSpot(camp.spots, a.rnd), rad: 3, until: until + 1, mul: 1.4, act: 'act.evacuate' }, live);
+        break;
+      }
+      case 'expedition_out': {
+        const back = allEvents().find(e => e.kind === 'expedition_back' && e.round > ev.round);
+        const edge = { x: world.geo.C - 1, y: world.H - 2 };
+        for (const a of expeditionMembers()) setOv(a, { kind: 'expedition', dest: edge, rad: 0, until: back ? back.round : 1e9, mul: 1.15, act: 'act.expedition', awayOnArrive: true }, live);
+        break;
+      }
+      case 'expedition_back': {
+        const edge = { x: world.geo.C, y: world.H - 2 };
+        for (const a of expeditionMembers()) {
+          a.away = false;
+          if (live) { placeAt(a, edge); setOv(a, { kind: 'return', dest: a.home, rad: 2, until, mul: 1.1, act: 'act.return' }, true); }
+          else setOv(a, { kind: 'return', dest: a.home, rad: 2, until, mul: 1.1, act: 'act.return' }, false);
+        }
+        break;
+      }
+      case 'shortage': {
+        const pool = agents.filter(a => (a.ring === 'outer' || a.ring === 'middle') && !a.away);
+        pickSome(pool, Math.min(world.queue.length, 10), ev, 'q').forEach((a, k) => setOv(a, { kind: 'queue', dest: world.queue[k] || world.places.granary.spots[0], rad: 0, until, mul: 1.2, act: 'act.queue' }, live));
+        break;
+      }
+      case 'riot': {
+        const pool = agents.filter(a => (a.ring === (ev.ring || 'middle') || a.ring === 'outer') && !a.away);
+        pickSome(pool, 12, ev, 'r').forEach(a => setOv(a, { kind: 'riot', dest: pickSpot(world.riotSpots, a.rnd), rad: 2, until, mul: 1.5, act: 'act.riot' }, live));
+        break;
+      }
+      case 'decree': {
+        for (const a of agents) {
+          if (a.away || hashStr('d' + a.id + ev.id) % 3) continue;
+          const k = a.ring === 'inner' ? 'council' : a.ring === 'middle' ? 'forum' : 'plaza';
+          setOv(a, { kind: 'listen', dest: pickSpot(world.places[k].spots, a.rnd), rad: 2, until, mul: 1.1, act: 'act.listen' }, live);
+        }
+        break;
+      }
+      case 'fire': {
+        const o = fireTarget(ev); if (!o) break;
+        const door = { x: o.tx + Math.floor(o.fw / 2), y: o.ty + o.fh + 1 };
+        const pool = agents.filter(a => a.ring === (ev.ring || 'middle') && !a.away).sort((p, q) => Math.hypot(p.x - door.x * TILE, p.y - door.y * TILE) - Math.hypot(q.x - door.x * TILE, q.y - door.y * TILE));
+        pool.slice(0, 6).forEach(a => setOv(a, { kind: 'fire', dest: door, rad: 2, until, mul: 1.8, act: 'act.fire' }, live));
+        break;
+      }
+    }
+  }
+  function expeditionMembers() {
+    const b = agents.filter(a => a.ring === 'beyond');
+    return b.length ? b : [];
+  }
+  function fireWorldEvent(ev, live) {
+    const [color, icon] = EV_STYLE[ev.kind] || ['#7a4fb0', 'exclaim'];
+    banner = { text: ev.title || t('wev.kind.' + ev.kind), sub: ev.text || '', t: 0, dur: 7, color, icon };
+    if (!ev.god) emit('world-event', { event: ev, round: ev.round, id: ev.id });
+    applyEventBehaviors(ev, live);
+  }
+  function rederiveEvents(r, teleport) {
+    const evs = allEvents();
+    let outEv = null;
+    for (const ev of evs) {
+      if (ev.round >= r) break;
+      if (ev.kind === 'expedition_out') outEv = ev; else if (ev.kind === 'expedition_back') outEv = null;
+    }
+    for (const ev of evs) {
+      if (ev.round >= r) continue;
+      if (ev.kind === 'expedition_out' || ev.kind === 'expedition_back') continue;
+      if (r < ev.round + EV_DUR[ev.kind]) applyEventBehaviors(ev, !teleport);
+    }
+    if (outEv) applyEventBehaviors(outEv, !teleport);
+    const backEv = evs.find(e => e.kind === 'expedition_back' && e.round < r && r < e.round + EV_DUR.expedition_back);
+    if (backEv && !outEv) applyEventBehaviors(backEv, !teleport);
+  }
+  function overrideTick(a, dt) {
+    const ov = a.ov;
+    if (!ov) { if (a.away) return true; return false; }
+    if (curRound() >= ov.until) { a.ov = null; if (ov.kind === 'expedition') { /* stays away until the return event */ return a.away; } return false; }
+    if (a.moving) { stepAgent(a, dt); if (!a.moving && ov.awayOnArrive) a.away = true; return true; }
+    if (a.away) return true;
+    if (a.sleeping) { a.sleeping = false; placeAt(a, a.home); }
+    ov.wait -= dt;
+    if (ov.wait > 0 || pathBudget <= 0) return true;
+    pathBudget--;
+    const dest = ov.arrived && ov.rad > 0 ? world.randomSpotNear(ov.dest.x, ov.dest.y, ov.rad, a.rnd) : ov.dest;
+    const t0 = tileOf(a);
+    if (ov.arrived && ov.rad === 0 && t0.x === dest.x && t0.y === dest.y) { ov.wait = 2; return true; }
+    setPath(a, dest, ov.arrived ? 0.5 : ov.mul);
+    ov.wait = ov.arrived ? 2 + a.rnd() * 4 : 0.2;
+    ov.arrived = true;
+    a.activity = A(ov.act);
+    return true;
+  }
+
+  // ---------------------------------------------------------------- visuals
+  function spawnDust(ev, n) {
+    const s = breachSite(ev); if (!s) return;
+    const cx = (s.x + 0.5) * TILE, cy = ((s.y0 + s.y1) / 2 + 0.5) * TILE;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 6 + Math.random() * 30;
+      wparticles.push({ x: cx + (Math.random() - 0.5) * 70, y: cy + (Math.random() - 0.5) * 50, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.6 - 6, life: 2 + Math.random() * 3, max: 5, s: 2 + Math.floor(Math.random() * 4), c: ['#8a8378', '#a39c8f', '#6e685f', '#b8b0a2'][i & 3], kind: 'dust' });
+    }
+  }
+  function drawBreaches(vx0, vy0, vx1, vy1) {
+    const r = curRound();
+    for (const ev of allEvents()) {
+      if (ev.kind !== 'breach' || ev.round > r) continue;
+      const s = breachSite(ev); if (!s) continue;
+      let d = decalCache.get(ev.id);
+      if (!d) { d = makeBreachDecal(5, s.y1 - s.y0 + 1, s.dir, evHash(ev, 'd')); decalCache.set(ev.id, d); }
+      const x = (s.x - 2) * TILE + d.ox, y = s.y0 * TILE + d.oy;
+      if (x > vx1 || y > vy1 || x + d.img.width < vx0 || y + d.img.height < vy0) continue;
+      ctx.drawImage(d.img, x, y);
+    }
+  }
+  function computeColossi() {
+    const list = [];
+    for (const ev of allEvents()) {
+      if (ev.kind !== 'sighting' && ev.kind !== 'breach') continue;
+      if (!evActive(ev)) continue;
+      const p = evProgress(ev), dur = EV_DUR[ev.kind];
+      const fade = clamp(Math.min(p / 0.5, (dur - p) / 0.8), 0, 1);
+      if (ev.kind === 'sighting') {
+        // three giants stalk along one side of the horizon, in the fog
+        const G = world.geo, h0 = evHash(ev), side = ev.god ? (h0 % 4) : ((h0 % 3) === 2 ? 3 : (h0 % 3)); // mostly north / east / west
+        const base = [-Math.PI / 2, 0, Math.PI, Math.PI / 2][side];
+        const rr = G.RO + 13;
+        for (let j = 0; j < 3; j++) {
+          const a = base + (j - 1) * 0.42 + ((p / dur) - 0.5) * 0.35 * (j % 2 ? -1 : 1);
+          const dx = Math.cos(a), dy = Math.sin(a), q = Math.pow(dx ** 4 + dy ** 4, 0.25); // rounded-square radius
+          const rj = rr + (j === 1 ? 5 : 0);
+          list.push({ x: (G.C + dx / q * rj) * TILE, y: (G.C + dy / q * rj) * TILE, alpha: fade, sil: true, walk: true, v: j % 2, face: (j % 2 ? -1 : 1), ph: j * 0.37 });
+        }
+      } else {
+        const s = breachSite(ev); if (!s) continue;
+        const outY = s.dir > 0 ? s.y1 + 3 : s.y0 - 1;
+        const appr = clamp(p / 0.7, 0, 1), leave = clamp((p - (dur - 1.2)) / 1.2, 0, 1);
+        const off = (1 - appr) * 12 + leave * 14;
+        list.push({ x: (s.x + 3.5) * TILE, y: (outY + s.dir * off) * TILE, alpha: fade, sil: false, walk: appr < 1 || leave > 0, v: 1, face: -1, ph: 0 });
+      }
+    }
+    return list;
+  }
+  function collectDynamic(vis, vx0, vy0, vx1, vy1) {
+    // colossi
+    for (const c of colossiNow) {
+      if (c.x < vx0 - 60 || c.x > vx1 + 60 || c.y < vy0 - 10 || c.y > vy1 + 130) continue;
+      vis.push({ y: c.y, draw: () => drawColossus(c) });
+    }
+    // camp tents during evacuations
+    for (const ev of allEvents()) {
+      if (ev.kind === 'evacuation' && evActive(ev)) {
+        const camp = world.camps[ev.ring || 'outer'] || world.camps.outer;
+        if (!tentSprites) tentSprites = [0, 1, 2, 3].map(i => makeCampTent(hashStr('camp' + i)));
+        const al = clamp(evProgress(ev) / 0.4, 0, 1);
+        camp.tents.forEach((tp, i) => {
+          const sp = tentSprites[i % 4], x = tp.x * TILE + sp.ox, y = tp.y * TILE + sp.oy;
+          if (x > vx1 || y > vy1 || x + 50 < vx0 || y + 40 < vy0) return;
+          vis.push({ y: (tp.y + 1) * TILE, draw: () => { ctx.globalAlpha = al; ctx.drawImage(sp.img, x, y); ctx.globalAlpha = 1; } });
+        });
+      }
+      if (ev.kind === 'decree' && evActive(ev)) {
+        if (!heraldImg) heraldImg = makeHerald();
+        for (const k of ['plaza', 'forum', 'council']) {
+          const P = world.places[k]; if (!P.center) continue;
+          const x = P.center.x - 7, y = P.center.y - 26 + Math.round(Math.abs(Math.sin(realTime * 4)) * -2);
+          vis.push({ y: P.center.y, draw: () => ctx.drawImage(heraldImg, x, y) });
+        }
+      }
+    }
+  }
+  function drawColossus(c) {
+    const fr = c.walk ? Math.floor(realTime * 2.2 + c.ph * 4) % COLOSSUS_FRAMES : 0;
+    const sp = getColossus(fr, c.v, c.sil);
+    const breathe = c.walk ? 0 : Math.round(Math.sin(realTime * 1.3 + c.ph) * 1);
+    ctx.globalAlpha = c.alpha * (c.sil ? 0.92 : 1);
+    if (c.face < 0) { ctx.save(); ctx.translate(Math.round(c.x), 0); ctx.scale(-1, 1); ctx.drawImage(sp.img, -Math.round(sp.img.width / 2), Math.round(c.y - sp.footY + breathe)); ctx.restore(); }
+    else ctx.drawImage(sp.img, Math.round(c.x - sp.img.width / 2), Math.round(c.y - sp.footY + breathe));
+    ctx.globalAlpha = 1;
+    // shadow-ish ground darkening
+    ctx.fillStyle = `rgba(8,8,10,${0.25 * c.alpha})`; ctx.fillRect(Math.round(c.x - 26), Math.round(c.y - 3), 52, 5);
+  }
+  function drawObjectFx(o) {
+    if (o.kind === 'tower' && alarmLvl > 0 && o.bell) {
+      const sw = Math.round(Math.sin(realTime * 10 + o.x) * 2);
+      ctx.fillStyle = '#1e1d22'; ctx.fillRect(o.bell.x - 8, o.bell.y - 2, 16, 15);
+      ctx.fillStyle = '#b8873f'; ctx.fillRect(o.bell.x - 5 + sw, o.bell.y, 10, 8); ctx.fillRect(o.bell.x - 7 + sw, o.bell.y + 7, 14, 3); ctx.fillStyle = '#e6c06a'; ctx.fillRect(o.bell.x - 3 + sw, o.bell.y + 1, 2, 5);
+      const ph = (realTime * 1.6) % 1;
+      ctx.strokeStyle = `rgba(255,214,120,${(1 - ph) * 0.9})`; ctx.lineWidth = 1;
+      for (const side of [-1, 1]) { ctx.beginPath(); ctx.arc(o.bell.x, o.bell.y + 5, 10 + ph * 16, side < 0 ? Math.PI * 0.7 : -Math.PI * 0.3, side < 0 ? Math.PI * 1.3 : Math.PI * 0.3); ctx.stroke(); }
+    } else if (o.kind === 'forge' && o.fire) {
+      const f = (Math.sin(realTime * 13 + o.x) + 1) / 2;
+      ctx.fillStyle = f > 0.5 ? '#ffd27a' : '#ff9a3a'; ctx.fillRect(o.fire.x - 3, o.fire.y - 2 - Math.round(f * 2), 6, 3);
+      ctx.fillStyle = '#fff1b8'; ctx.fillRect(o.fire.x - 1, o.fire.y - 1, 2, 2);
+    } else if (o.kind === 'torch') {
+      const f = Math.sin(realTime * 11 + o.x * 0.3);
+      ctx.fillStyle = f > 0 ? '#ffd27a' : '#ff9a3a'; ctx.fillRect(o.x + 3, o.y + 1 - (f > 0.5 ? 1 : 0), 2, 2);
+    }
+    if (o.burning) drawFlames(o);
+  }
+  function drawFlames(o) {
+    const w = o.img.width, n = Math.max(3, Math.floor(w / 8));
+    const roofY = o.y + Math.round(o.img.height * 0.42);
+    const tongue = (x, base, h, wd, col) => { for (let yy = 0; yy < h; yy++) { const k = 1 - yy / h, ww = Math.max(1, Math.round(wd * k)), sw = Math.round(Math.sin(realTime * 9 + yy * 0.5 + x) * k * 1.5); ctx.fillStyle = col; ctx.fillRect(Math.round(x - ww / 2 + sw), Math.round(base - yy), ww, 1); } };
+    for (let i = 0; i < n; i++) {
+      const x = o.x + 6 + i * (w - 12) / Math.max(1, n - 1), ph = realTime * 6 + i * 1.9;
+      const h = (10 + Math.round((Math.sin(ph) + 1) * 6 + (i % 3) * 4)) * o.burnK;
+      const base = roofY + ((i * 7) % 5);
+      tongue(x, base, h, 8, '#c0401e'); tongue(x, base, h * 0.75, 6, '#ff8a2a'); tongue(x, base, h * 0.45, 3, '#ffd77a');
+    }
+  }
+  function drawWParticles() {
+    for (const p of wparticles) {
+      const al = clamp(p.life / p.max, 0, 1);
+      ctx.globalAlpha = p.kind === 'smoke' ? al * 0.55 : al * 0.85;
+      ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawFog(z) {
+    drawWParticles();
+    const f = world.fog;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(f, 0, 0, f.width, f.height, 0, 0, world.pxW, world.pxH);
+    const dx = Math.sin(realTime * 0.05) * 3 * TILE, dy = Math.cos(realTime * 0.04) * 2 * TILE;
+    ctx.globalAlpha = 0.35;
+    ctx.drawImage(f, 0, 0, f.width, f.height, dx - 2 * TILE, dy - 2 * TILE, world.pxW + 4 * TILE, world.pxH + 4 * TILE);
+    ctx.restore();
+  }
+  function ambientWalls(dt) {
+    colossiNow = computeColossi();
+    let alarm = 0, closed = false;
+    const r = curRound();
+    for (const ev of allEvents()) {
+      if (ev.round > r + 1) break;
+      if (!evActive(ev)) continue;
+      if (ev.kind === 'alarm') { alarm = 1; closed = true; }
+      if (ev.kind === 'breach' && evProgress(ev) < 2.2) { closed = true; alarm = Math.max(alarm, 0.8); }
+    }
+    alarmLvl = alarm; gatesClosed = closed;
+    // burning buildings
+    for (const o of world.fireTargets.middle.concat(world.fireTargets.outer, world.fireTargets.inner)) o.burning = false;
+    for (const ev of allEvents()) {
+      if (ev.kind !== 'fire' || !evActive(ev)) continue;
+      const o = fireTarget(ev); if (!o) continue;
+      const p = evProgress(ev);
+      o.burning = true; o.burnK = clamp(Math.min(p / 0.6, (EV_DUR.fire - p) / 1.2), 0.2, 1);
+      if (Math.random() < dt * 14) wparticles.push({ x: o.x + Math.random() * o.img.width, y: o.y + o.img.height * 0.25, vx: (Math.random() - 0.5) * 6 + 4, vy: -14 - Math.random() * 10, life: 3 + Math.random() * 2, max: 5, s: 3 + Math.floor(Math.random() * 3), c: Math.random() < 0.2 ? '#ff9a3a' : '#3a3836', kind: 'smoke' });
+    }
+    for (const c of colossiNow) if (!c.sil && c.walk && Math.random() < dt * 8) wparticles.push({ x: c.x + (Math.random() - 0.5) * 40, y: c.y - 2, vx: (Math.random() - 0.5) * 12, vy: -4 - Math.random() * 6, life: 1.5 + Math.random(), max: 2.5, s: 2 + Math.floor(Math.random() * 3), c: '#8a8378', kind: 'dust' });
+    for (const p of wparticles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.985; if (p.kind === 'dust') p.vy += 3 * dt; p.life -= dt; }
+    if (wparticles.length) wparticles = wparticles.filter(p => p.life > 0);
+    if (wparticles.length > 900) wparticles.splice(0, wparticles.length - 900);
+    if (alarm > 0) for (const a of agents) if (!a.sleeping && !a.away && a.alertT <= 0 && (hashStr('al' + a.id) + Math.floor(realTime * 0.5)) % 5 === 0) a.alertT = 0.9;
+  }
+  function drawEventIcons(S, k, zcss, vx0, vy0, vx1, vy1) {
+    const r = curRound();
+    const s = zcss >= 1 ? 2 : 1;
+    for (const ev of allEvents()) {
+      if (ev.round > r + 1) break;
+      if (!evActive(ev)) continue;
+      if (ev.kind === 'shortage' && world.granary) {
+        const o = world.granary, ic = getIcon('sack'), bob = Math.round(Math.sin(realTime * 4) * 3);
+        const [x, y] = S(o.x + o.img.width / 2, o.y);
+        ctx.globalAlpha = 0.65 + 0.35 * Math.abs(Math.sin(realTime * 3));
+        ctx.drawImage(ic, x * k - ic.width * s, y * k - 10 - ic.height * s * 2 + bob, ic.width * s * 2, ic.height * s * 2);
+        ctx.globalAlpha = 1;
+      }
+      if (ev.kind === 'decree') {
+        const ic = getIcon('scroll');
+        for (const key of ['plaza', 'forum', 'council']) {
+          const P = world.places[key]; if (!P.center) continue;
+          const [x, y] = S(P.center.x, P.center.y - 34);
+          ctx.drawImage(ic, x * k - ic.width * s / 2 * 1.5, y * k - ic.height * s * 1.5 + Math.round(Math.sin(realTime * 5) * 2), ic.width * s * 1.5, ic.height * s * 1.5);
+        }
+      }
+    }
+    const ai = getIcon('angry');
+    for (const a of agents) {
+      if (!a.ov || a.ov.kind !== 'riot' || a.sleeping || a.away) continue;
+      if (a.x < vx0 || a.x > vx1 || a.y < vy0 || a.y > vy1 + 20) continue;
+      const [x, y] = S(a.x, a.y - 24);
+      const bob = Math.round(Math.abs(Math.sin(realTime * 6 + a.i)) * -4);
+      ctx.drawImage(ai, x * k - ai.width * s / 2, y * k - ai.height * s + bob, ai.width * s, ai.height * s);
+    }
+  }
+  function drawLightingWalls(z, ox, oy) {
+    const h = clockHour();
+    const dk = darknessAt(h);
+    const warm = Math.max(0, 1 - Math.abs(h - 18.4) / 1.6) * 0.7 + Math.max(0, 1 - Math.abs(h - 6.3) / 1.0) * 0.4;
+    let r = lerp(206, 42, dk), g = lerp(208, 48, dk), b = lerp(218, 84, dk);
+    g *= lerp(1, 0.85, warm); b *= lerp(1, 0.72, warm);
+    const pulse = alarmLvl > 0 ? (Math.sin(realTime * 6) + 1) / 2 : 0;
+    if (alarmLvl > 0) { g *= 1 - 0.06 * pulse * alarmLvl; b *= 1 - 0.08 * pulse * alarmLvl; }
+    if (weather) { const k = weather.alpha * 0.15; r *= 1 - k; g *= 1 - k; b *= 1 - k * 0.6; }
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`; ctx.fillRect(0, 0, cw, ch);
+    ctx.globalCompositeOperation = 'source-over';
+    if (alarmLvl > 0) {
+      // pulsing red vignette at the screen edges
+      const rr = Math.hypot(cw, ch) / 2, gr = ctx.createRadialGradient(cw / 2, ch / 2, rr * 0.45, cw / 2, ch / 2, rr);
+      gr.addColorStop(0, 'rgba(170,20,12,0)'); gr.addColorStop(1, `rgba(170,20,12,${(0.14 + 0.18 * pulse) * alarmLvl})`);
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, cw, ch);
+    }
+    const glow = getGlow();
+    ctx.globalCompositeOperation = 'lighter';
+    const a = clamp((dk - 0.1) / 0.6, 0, 1);
+    if (a > 0) {
+      ctx.fillStyle = `rgba(255,190,100,${0.75 * a})`;
+      const lit = [];
+      for (const o of world.objects) {
+        if (!o.windows || !o.windows.length) continue;
+        if (o.x * z + ox > cw || o.y * z + oy > ch || (o.x + o.img.width) * z + ox < 0 || (o.y + o.img.height) * z + oy < 0) continue;
+        if (o.filler) { if (hashStr(o.tx + ',' + o.ty + ':' + Math.floor(h)) % 3 === 0) continue; }
+        else if (o.kind === 'house') { const ow = agentById.get(o.owner); if (!ow || (ow.sleeping && hashStr(o.owner + ':' + Math.floor(h)) % 3 !== 0)) continue; }
+        for (const w of o.windows) { const x = w.x * z + ox, y = w.y * z + oy; ctx.fillRect(x, y, w.w * z, w.h * z); lit.push([x + w.w * z / 2, y + w.h * z / 2, Math.max(w.w, w.h)]); }
+      }
+      ctx.globalAlpha = 0.45 * a;
+      for (const [x, y, s] of lit) { const S = s * z * 2.2; ctx.drawImage(glow, x - S / 2, y - S / 2, S, S); }
+    }
+    // torches, braziers & forges: always a little visible, strong at night
+    const ta = 0.18 + 0.7 * a;
+    for (const L of world.lamps) {
+      const fl = L.flicker ? 0.85 + 0.15 * Math.sin(realTime * 9 + L.x * 0.7) : 1;
+      const x = L.x * z + ox, y = L.y * z + oy, S = (L.forge ? 60 : 54) * z * fl;
+      if (x < -S || y < -S || x > cw + S || y > ch + S) continue;
+      ctx.globalAlpha = ta * fl; ctx.drawImage(glow, x - S / 2, y - S / 2, S, S);
+    }
+    // burning buildings
+    for (const o of world.fireTargets.middle.concat(world.fireTargets.outer, world.fireTargets.inner)) {
+      if (!o.burning) continue;
+      const x = (o.x + o.img.width / 2) * z + ox, y = (o.y + o.img.height * 0.35) * z + oy, S = 150 * z * (0.9 + 0.1 * Math.sin(realTime * 8));
+      ctx.globalAlpha = 0.55 + 0.3 * a; ctx.drawImage(glow, x - S / 2, y - S / 2, S, S);
+    }
+    // colossus eyes
+    for (const c of colossiNow) {
+      const sp = getColossus(0, c.v, c.sil);
+      for (const e of sp.eyes) {
+        const ex = c.face < 0 ? c.x + (sp.img.width / 2 - e.x) : c.x - sp.img.width / 2 + e.x;
+        const x = ex * z + ox, y = (c.y - sp.footY + e.y) * z + oy, S = 22 * z;
+        ctx.globalAlpha = c.alpha * (0.35 + 0.6 * Math.max(a, dk)); ctx.drawImage(glow, x - S / 2, y - S / 2, S, S);
+      }
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   }
 
   // ------------------------------------------------------------ main loop
@@ -910,7 +1363,16 @@ export function createEngine(canvas) {
     } else {
       clearCharacterCache();
       world = buildWorld(data);
+      W3 = world.theme === 'three_walls';
+      placePrefix = W3 ? 'wplace.' : 'place.';
+      decalCache.clear();
     }
+    godWEvents = [];
+    wEvents = W3 ? (Array.isArray(data.meta.events) ? data.meta.events : [])
+      .filter(e => e && EV_DUR[e.kind] != null && isFinite(+e.round))
+      .map((e, i) => ({ ...e, round: +e.round, id: 'wev:' + i + ':' + e.round + ':' + e.kind }))
+      .sort((p, q) => p.round - q.round) : [];
+    refreshEvents();
     agents = data.agents.map((a, i) => makeAgent(a, i));
     agentById = new Map(agents.map(a => [a.id, a]));
     selected = null; hovered = null; followId = null; hype = null; effects = []; atEnd = false;
@@ -919,6 +1381,7 @@ export function createEngine(canvas) {
       resize();
       cam.z = clamp(Math.round((cw / dpr < 700 || ch / dpr < 420 ? 1 : 2) * dpr), zMin(), zMax());
       cam.x = world.places.plaza.center.x; cam.y = world.places.plaza.center.y - 2 * TILE; cam.tx = null;
+      if (W3) { cam.z = zMin(); cam.x = world.geo.C * TILE; cam.y = (world.geo.C + world.geo.RM * 0.55) * TILE; }
       clampCam();
     }
     emit('data-loaded', { data });
@@ -958,6 +1421,14 @@ export function createEngine(canvas) {
   function godEvent(ev = {}) {
     const kind = ev.kind || 'rumor', text = String(ev.text || '').trim();
     if (!world) return;
+    if (EV_DUR[kind] != null) {
+      if (!W3) return;
+      const wev = { round: rounds[roundIdx] ? rounds[roundIdx].round : 0, kind, ring: ev.ring || (kind === 'breach' ? 'outer' : null), god: true, id: 'god:' + (++godSeq),
+        title: t('wev.god.' + kind), text: text && text !== kind ? text : t('wev.godText.' + kind, { ring: ringName(ev.ring || 'outer') }), seed: Math.floor(Math.random() * 1e9) };
+      godWEvents.push(wev); refreshEvents();
+      fireWorldEvent(wev, true);
+      return;
+    }
     if (kind === 'weather') {
       const snow = /snow|blizzard|cold|winter|frost|freez|ice|neige|雪/i.test(text);
       const n = snow ? 260 : 380;
@@ -977,7 +1448,7 @@ export function createEngine(canvas) {
     const a = agentById.get(id); if (!a) return null;
     return {
       id: a.id, x: a.x / TILE, y: a.y / TILE, mood: a.mood, activity: activityText(a.activity), lastAction: a.lastAction,
-      stats: { ...a.stats }, sleeping: a.sleeping, home: { ...a.home }, district: a.d.type,
+      stats: { ...a.stats }, sleeping: a.sleeping, home: { ...a.home }, district: a.d.type, ring: a.ring, away: a.away,
     };
   }
 
@@ -991,7 +1462,9 @@ export function createEngine(canvas) {
     getWorld: () => world,
     focus(id) { const a = agentById.get(id); if (a) { cam.tx = a.x; cam.ty = a.y; } },
     setZoom(zz) { zoomAt(zz * dpr, cw / 2, ch / 2); },
-    setCamera(x, y, zz) { if (zz) cam.z = clamp(Math.round(zz * dpr), zMin(), zMax()); cam.x = x * TILE; cam.y = y * TILE; cam.tx = null; followId = null; clampCam(); },
+    getWorldEvents: () => allEvents(),
+    getColossi: () => colossiNow.map(c => ({ x: c.x / TILE, y: c.y / TILE, alpha: c.alpha, sil: c.sil })),
+    setCamera(x, y, zz) { if (zz) cam.z = normZ(zz * dpr); cam.x = x * TILE; cam.y = y * TILE; cam.tx = null; followId = null; clampCam(); },
     resize,
     destroy() { cancelAnimationFrame(raf); if (ro) ro.disconnect(); },
     speeds: SPEEDS,

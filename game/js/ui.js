@@ -8,7 +8,11 @@ const ICONS = { POST: '✍️', COMMENT: '💬', LIKE: '👍', DISLIKE: '👎', 
   FOLLOW: '➕', MUTE: '🔇', SEARCH: '🔍', TREND: '📈', IDLE: '💤', GOD: '⚡' };
 const verbOf = type => (type === 'GOD' ? '' : ({ POST: 1, COMMENT: 1, LIKE: 1, DISLIKE: 1, REPOST: 1, QUOTE: 1, FOLLOW: 1, MUTE: 1, SEARCH: 1, TREND: 1, IDLE: 1 })[type] ? t('verb.' + type) : String(type).toLowerCase());
 const PLATFORM = { twitter: { icon: '🐦' }, reddit: { icon: '📜' } };
-const platLabel = p => (PLATFORM[p] ? t('plat.' + p) : p);
+let wallsTheme = false; // set when a "three_walls" map is loaded
+const platLabel = p => (PLATFORM[p] ? t('plat.' + p + (wallsTheme ? 'W' : '')) : p);
+const platFull = p => t('plat.' + p + 'Full' + (wallsTheme ? 'W' : ''));
+const EV_ICON = { sighting: '👁️', alarm: '🔔', breach: '🧱', evacuation: '🏃', expedition_out: '🧭', expedition_back: '🧭', shortage: '🌾', riot: '✊', decree: '📜', fire: '🔥' };
+const EV_COLOR = { sighting: '#5b6b80', alarm: '#c0392b', breach: '#8e2a22', evacuation: '#c08a2a', expedition_out: '#4f7a4a', expedition_back: '#4f7a4a', shortage: '#9a7a3a', riot: '#d0573a', decree: '#7a4f9a', fire: '#e0702a' };
 const stanceLabel = s => (STANCE_COLOR[s] ? t('stance.' + s) : s);
 const phaseOf = h => (h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night');
 const SPEEDS = [0.5, 1, 2, 4, 8];
@@ -163,9 +167,9 @@ export function initUI(engine, bus) {
   const $fPlat = L(el('select', { onchange: () => { S.filters.platform = $fPlat.value; applyFeedFilter(); } },
     el('option', { value: 'all' }), el('option', { value: 'twitter' }), el('option', { value: 'reddit' })), n => {
     n.setAttribute('aria-label', t('feed.fPlat'));
-    n.options[0].textContent = t('feed.allPlaces'); n.options[1].textContent = '🐦 ' + t('plat.twitterFull'); n.options[2].textContent = '📜 ' + t('plat.redditFull');
+    n.options[0].textContent = t('feed.allPlaces'); n.options[1].textContent = '🐦 ' + platFull('twitter'); n.options[2].textContent = '📜 ' + platFull('reddit');
   });
-  const TYPE_GROUPS = ['default', 'POST', 'COMMENT', 'LIKE', 'DISLIKE', 'REPOST', 'FOLLOW', 'GOD', 'IDLE'];
+  const TYPE_GROUPS = ['default', 'POST', 'COMMENT', 'LIKE', 'DISLIKE', 'REPOST', 'FOLLOW', 'GOD', 'EVENT', 'IDLE'];
   const $fType = L(el('select', { onchange: () => { S.filters.type = $fType.value; applyFeedFilter(); } },
     TYPE_GROUPS.map(v => el('option', { value: v }))), n => {
     n.setAttribute('aria-label', t('feed.fType'));
@@ -178,7 +182,7 @@ export function initUI(engine, bus) {
   function feedMatches(it) {
     const f = S.filters, t = it.dataset.type;
     if (f.agent !== 'all' && it.dataset.agent !== f.agent) return false;
-    if (f.platform !== 'all' && it.dataset.platform !== f.platform && t !== 'GOD') return false;
+    if (f.platform !== 'all' && it.dataset.platform !== f.platform && t !== 'GOD' && t !== 'EVENT') return false;
     if (f.type === 'default') return t !== 'IDLE';
     if (f.type === 'REPOST') return t === 'REPOST' || t === 'QUOTE';
     return t === f.type;
@@ -197,6 +201,24 @@ export function initUI(engine, bus) {
       case 'SEARCH': return a.content || '';
       default: return a.content || '';
     }
+  }
+  function addWorldEventItem(ev, opts = {}) {
+    if (S.feedIds.has(ev.id)) return;
+    S.feedIds.add(ev.id);
+    const kind = ev.kind;
+    const it = el('article', { class: 'feed-item god world-ev t-EVENT', dataset: { agent: 'event', platform: '', type: 'EVENT', kind } },
+      el('span', { class: 'dot', style: { background: EV_COLOR[kind] || '#c0392b' } }, EV_ICON[kind] || '⚠'),
+      el('div', { class: 'fi-body' },
+        el('div', { class: 'fi-head' },
+          el('span', { class: 'fi-name', dataset: { fallback: 'event' } }, t('feed.event')),
+          el('span', { class: 'fi-verb', dataset: { type: 'EVENT', kind } }, t('wev.kind.' + kind)),
+          el('span', { class: 'fi-time', dataset: { round: ev.round ?? '' } }, ev.round != null ? timeLabel(ev.round) : '')),
+        el('div', { class: 'fi-text' }, el('b', {}, ev.title || t('wev.kind.' + kind)), ev.text ? ' — ' + ev.text : '')));
+    it.style.setProperty('--evc', EV_COLOR[kind] || '#c0392b');
+    it.hidden = !feedMatches(it);
+    if (opts.append) $feedList.append(it); else $feedList.prepend(it);
+    while ($feedList.children.length > FEED_CAP) $feedList.lastElementChild.remove();
+    if (!it.hidden) $feedEmpty.hidden = true;
   }
   function addFeedItem(a, ag, opts = {}) {
     if (!opts.god && a.id != null) { if (S.feedIds.has(a.id)) return; S.feedIds.add(a.id); }
@@ -226,6 +248,12 @@ export function initUI(engine, bus) {
   function timeLabel(r) { const rr = S.data && S.data.rounds.find(x => x.round === r); return rr ? t('tl.short', { day: rr.day, time: `${pad2(rr.hour)}:${pad2(rr.minute)}` }) : t('tl.r', { r }); }
   function relabelFeed() {
     for (const it of $feedList.children) {
+      if (it.dataset.type === 'EVENT') {
+        it.querySelector('.fi-verb').textContent = t('wev.kind.' + it.dataset.kind);
+        it.querySelector('.fi-name').textContent = t('feed.event');
+        const tm = it.querySelector('.fi-time'); if (tm.dataset.round !== '') tm.textContent = timeLabel(+tm.dataset.round);
+        continue;
+      }
       it.querySelector('.fi-verb').textContent = verbOf(it.dataset.type);
       const pl = it.querySelector('.plat'); if (pl) pl.title = platLabel(pl.dataset.p);
       const dot = it.querySelector('.dot'); if (dot && dot.dataset.stance && !it.classList.contains('god')) dot.title = stanceLabel(dot.dataset.stance);
@@ -243,7 +271,17 @@ export function initUI(engine, bus) {
       if (a.type === 'LIKE' && a.post_id) S.likeCounts.set(a.post_id, (S.likeCounts.get(a.post_id) || 0) + 1);
       if (a.type !== 'IDLE') acts.push([r, a]);
     }
-    for (const [r, a] of acts.slice(-60)) addFeedItem(a, agent(a.agent_id), { append: false, round: r.round });
+    const evs = (S.data && Array.isArray(S.data.meta.events) && engine.getWorldEvents) ? engine.getWorldEvents().filter(e => !e.god && e.round <= upTo) : [];
+    if (evs.length) {
+      // interleave world events (they fire at the start of their round)
+      const merged = [];
+      let ei = 0;
+      for (const ra of acts) { while (ei < evs.length && evs[ei].round <= ra[0].round) merged.push([null, evs[ei++]]); merged.push(ra); }
+      while (ei < evs.length) merged.push([null, evs[ei++]]);
+      const cut = merged.length - 60;
+      for (const [r, a] of merged.filter((m, i) => i >= cut || !m[0])) { if (r) addFeedItem(a, agent(a.agent_id), { append: false, round: r.round }); else addWorldEventItem(a); }
+      for (const e of evs) S.feedIds.add(e.id);
+    } else for (const [r, a] of acts.slice(-60)) addFeedItem(a, agent(a.agent_id), { append: false, round: r.round });
     for (const [, a] of acts) S.feedIds.add(a.id);
     $feedEmpty.hidden = $feedList.children.length > 0;
     applyFeedFilter();
@@ -423,8 +461,8 @@ export function initUI(engine, bus) {
   // GOD MODE
   // =====================================================================
   let $rumor = null;
-  function god(kind, text, label) {
-    emit('cmd-god-event', { text, kind });
+  function god(kind, text, label, extra) {
+    emit('cmd-god-event', { text, kind, ...(extra || {}) });
     addFeedItem({ content: label || text, platform: '' }, null, { god: true, round: S.round });
     toast(label || text, ICONS.GOD, 'god');
     if (kind === 'rumor' && $rumor) $rumor.value = '';
@@ -441,7 +479,21 @@ export function initUI(engine, bus) {
         el('button', { class: 'btn god-btn', onclick: () => god('weather', 'snow', t('god.snowMsg')) }, t('god.snow')),
         el('button', { class: 'btn god-btn', onclick: () => god('weather', 'clear', t('god.clearMsg')) }, t('god.clear'))),
       el('h3', {}, t('god.festival')), el('div', { class: 'god-row' }, el('button', { class: 'btn god-btn', onclick: () => god('festival', 'festival', t('god.festivalMsg')) }, t('god.festivalBtn'))));
+    if (S.data && S.data.meta && S.data.meta.map === 'three_walls') {
+      const rn = r => (S.data.meta.world && S.data.meta.world.rings && S.data.meta.world.rings[r]) || t('wring.' + r);
+      const keepRing = $ringSel ? $ringSel.value : 'outer';
+      $ringSel = el('select', { class: 'ring-sel', 'aria-label': t('god.ringLbl'), title: t('god.ringLbl') }, ...['outer', 'middle', 'inner'].map(r => el('option', { value: r }, rn(r))));
+      $ringSel.value = keepRing;
+      $panels.god.append(
+        el('h3', {}, t('god.wallsH')),
+        el('div', { class: 'god-row' }, $ringSel,
+          el('button', { class: 'btn god-btn walls', id: 'god-breach', onclick: () => god('breach', '', t('god.breachMsg', { ring: rn($ringSel.value) }), { ring: $ringSel.value }) }, t('god.breach'))),
+        el('div', { class: 'god-row' },
+          el('button', { class: 'btn god-btn walls', id: 'god-colossus', onclick: () => god('sighting', '', t('god.colossusMsg')) }, t('god.colossus')),
+          el('button', { class: 'btn god-btn walls', id: 'god-alarm', onclick: () => god('alarm', '', t('god.alarmMsg')) }, t('god.alarm'))));
+    }
   }
+  let $ringSel = null;
   buildGod();
 
   // =====================================================================
@@ -597,6 +649,10 @@ export function initUI(engine, bus) {
   // =====================================================================
   function onData(data) {
     S.data = data; S.agents = new Map(data.agents.map(a => [a.id, a]));
+    wallsTheme = !!(data.meta && data.meta.map === 'three_walls');
+    document.body.classList.toggle('theme-walls', wallsTheme);
+    const logo = $top.querySelector('.logo'); if (logo) logo.textContent = wallsTheme ? '🏰' : '🏘️';
+    relabelFns.forEach(fn => fn()); buildGod();
     S.totalRounds = data.meta.total_rounds ?? Math.max(0, data.rounds.length - 1);
     S.crossFollowToasted = false; S.selected = null; S.follow = false;
     renderSimTitle();
@@ -621,6 +677,10 @@ export function initUI(engine, bus) {
     const wasNew = !S.feedIds.has(action.id);
     addFeedItem(action, a, { round: S.round });
     if (wasNew) checkToasts(action);
+  });
+  on('world-event', d => {
+    if (!S.data || !d || !d.event) return;
+    addWorldEventItem(d.event);
   });
   on('state', s => {
     S.playing = s.playing; S.speed = s.speed; S.round = s.round ?? S.round;

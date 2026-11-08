@@ -171,3 +171,10 @@ input[type=text]:disabled { opacity: .5; }
   .top-actions .btn { padding: 6px 9px; }
 }
 .tabs .tab { flex: 1 1 auto; padding-left: 6px; padding-right: 6px; }
+
+/* three_walls theme: world events in the feed + walls god controls */
+.feed-item.world-ev { background: linear-gradient(90deg, color-mix(in srgb, var(--evc, #c0392b) 34%, transparent), color-mix(in srgb, var(--evc, #c0392b) 6%, transparent)); border-left-color: var(--evc, #c0392b); }
+.feed-item.world-ev .dot { font-size: .95rem; }
+.feed-item.world-ev .fi-name { letter-spacing: .06em; }
+.god-row .ring-sel { flex: 1; min-width: 110px; padding: 8px; border-radius: var(--radius); background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+.god-btn.walls { border-color: #8e2a22; }

@@ -4,6 +4,7 @@ import {
   makeTable, makeSignpost, makeFlowerBed, makeHouse, makeForum, makeLibrary, makeCafe, makeNoticeboard, makeFountain,
   ROOF_COLORS,
 } from './sprites.js';
+import { buildWalledCity } from './walls_world.js';
 
 const CW = 22, CH = 18;            // macro cell size (tiles) incl. 2-tile road on top/left
 const HALF = 6;
@@ -19,6 +20,7 @@ function valueNoise(x, y, s) {
 }
 
 export function buildWorld(data) {
+  if (data && data.meta && data.meta.map === 'three_walls') return buildWalledCity(data, { createPathfinder, valueNoise });
   const agents = data.agents || [];
   const seed = hashStr((data.meta && data.meta.simulation_id) || 'swarm-town');
   // ---------- districts from agent types

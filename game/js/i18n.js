@@ -89,6 +89,28 @@ const uk = {
   'act.joinPlaza': 'приєднується до натовпу на площі', 'act.walkTo': 'йде {place}', 'act.headTo': 'прямує до {name}', 'act.move': 'в дорозі',
   'act.idle': 'нічого не робить', 'act.sleeping': 'спить', 'act.hanging': 'тиняється', 'act.home': 'іде додому спати', 'act.woke': 'щойно прокинувся',
   'act.stroll': 'прогулюється', 'act.potter': 'порається біля дому', 'act.wander': 'прямує {place}', 'act.festival': 'святкує на фестивалі',
+
+  // ---- three_walls theme
+  'wplace.plaza': 'Брама-майдан', 'wplace.forum': 'Ринкова площа', 'wplace.council': 'Палац ради', 'wplace.cafe': 'Корчма', 'wplace.library': 'Вісникова палата',
+  'wplace.park': 'Сади', 'wplace.temple': 'Храм мурів', 'wplace.granary': 'Комора', 'wplace.barracks': 'Казарми', 'wplace.commons': 'Вигін',
+  'wplace.forges': 'Кузні', 'wplace.healers': 'Цілительня', 'wplace.palace': 'Палац ради', 'wplace.camp': 'Табір',
+  'wplace.plazaThe': 'на Брама-майдан', 'wplace.forumThe': 'на Ринкову площу', 'wplace.councilThe': 'до Палацу ради', 'wplace.cafeThe': 'до корчми',
+  'wplace.libraryThe': 'до Вісникової палати', 'wplace.parkThe': 'до садів', 'wplace.templeThe': 'до храму', 'wplace.granaryThe': 'до комори',
+  'wplace.barracksThe': 'до казарм', 'wplace.commonsThe': 'на вигін', 'wplace.forgesThe': 'до кузень', 'wplace.healersThe': 'до цілительні',
+  'wplace.board': 'Вісниковий камінь · {posts}', 'wplace.forumTag': 'Ринкова площа · {threads}',
+  'wring.outer': 'Зовнішнє коло', 'wring.middle': 'Середнє коло', 'wring.inner': 'Внутрішнє коло', 'wring.beyond': 'За мурами',
+  'act.flee': 'тікає до брами', 'act.evacuate': 'евакуюється до табору', 'act.expedition': 'вирушає за мури', 'act.return': 'повертається з-за мурів',
+  'act.queue': 'стоїть у черзі по зерно', 'act.riot': 'протестує біля брами', 'act.fire': 'гасить пожежу', 'act.listen': 'слухає указ глашатая',
+  'wev.kind.sighting': 'Колоси на обрії', 'wev.kind.alarm': 'Тривога', 'wev.kind.breach': 'Пролом у мурі', 'wev.kind.evacuation': 'Евакуація',
+  'wev.kind.expedition_out': 'Вихід експедиції', 'wev.kind.expedition_back': 'Повернення експедиції', 'wev.kind.shortage': 'Нестача',
+  'wev.kind.riot': 'Заворушення', 'wev.kind.decree': 'Указ', 'wev.kind.fire': 'Пожежа',
+  'wev.god.breach': 'БОГ · Пролом у мурі', 'wev.god.sighting': 'БОГ · Колос на обрії', 'wev.god.alarm': 'БОГ · Тривога',
+  'wev.godText.breach': 'Колос проламав мур: {ring}.', 'wev.godText.sighting': 'У тумані за мурами рухається велетенська постать.', 'wev.godText.alarm': 'Дзвони на вежах б’ють на сполох.',
+  'feed.event': 'ПОДІЯ', 'ftype.EVENT': 'Події світу',
+  'plat.twitterW': 'Брама-майдан', 'plat.redditW': 'Ринкова площа', 'plat.twitterFullW': 'Брама-майдан', 'plat.redditFullW': 'Ринкова площа',
+  'god.wallsH': '🏰 Мури та Колоси', 'god.ringLbl': 'Коло муру', 'god.breach': '🧱 Пролом у мурі', 'god.colossus': '👁️ Колос на обрії', 'god.alarm': '🔔 Тривога',
+  'god.breachMsg': 'Пролом у мурі — {ring}', 'god.colossusMsg': 'На обрії з’явився Колос', 'god.alarmMsg': 'Дзвони б’ють на сполох',
+  'canvas.loadingW': 'Зводимо мури…',
 };
 
 const en = {
@@ -177,6 +199,28 @@ const en = {
   'act.joinPlaza': 'joining the crowd at the Plaza', 'act.walkTo': 'walking {place}', 'act.headTo': 'heading to {name}', 'act.move': 'on the move',
   'act.idle': 'idle', 'act.sleeping': 'sleeping', 'act.hanging': 'hanging around', 'act.home': 'heading home to sleep', 'act.woke': 'just woke up',
   'act.stroll': 'strolling', 'act.potter': 'pottering around home', 'act.wander': 'wandering {place}', 'act.festival': 'celebrating at the festival',
+
+  // ---- three_walls theme
+  'wplace.plaza': 'Gate Square', 'wplace.forum': 'Market Square', 'wplace.council': 'Council Palace', 'wplace.cafe': 'Tavern', 'wplace.library': "Herald's Hall",
+  'wplace.park': 'Gardens', 'wplace.temple': 'Temple of the Walls', 'wplace.granary': 'Granary', 'wplace.barracks': 'Barracks', 'wplace.commons': 'Commons',
+  'wplace.forges': 'Forges', 'wplace.healers': "Healers' House", 'wplace.palace': 'Council Palace', 'wplace.camp': 'Camp',
+  'wplace.plazaThe': 'to the Gate Square', 'wplace.forumThe': 'to the Market Square', 'wplace.councilThe': 'to the Council Palace', 'wplace.cafeThe': 'to the Tavern',
+  'wplace.libraryThe': "to the Herald's Hall", 'wplace.parkThe': 'to the Gardens', 'wplace.templeThe': 'to the Temple', 'wplace.granaryThe': 'to the Granary',
+  'wplace.barracksThe': 'to the Barracks', 'wplace.commonsThe': 'to the Commons', 'wplace.forgesThe': 'to the Forges', 'wplace.healersThe': "to the Healers' House",
+  'wplace.board': 'Herald stone · {posts}', 'wplace.forumTag': 'Market Square · {threads}',
+  'wring.outer': 'Outer Ring', 'wring.middle': 'Middle Ring', 'wring.inner': 'Inner Ring', 'wring.beyond': 'Beyond the walls',
+  'act.flee': 'fleeing to the gate', 'act.evacuate': 'evacuating to the camp', 'act.expedition': 'heading beyond the walls', 'act.return': 'returning from beyond the walls',
+  'act.queue': 'queueing for grain', 'act.riot': 'protesting at the gate', 'act.fire': 'fighting the fire', 'act.listen': "listening to the herald's decree",
+  'wev.kind.sighting': 'Colossi sighted', 'wev.kind.alarm': 'Alarm', 'wev.kind.breach': 'Wall breach', 'wev.kind.evacuation': 'Evacuation',
+  'wev.kind.expedition_out': 'Expedition departs', 'wev.kind.expedition_back': 'Expedition returns', 'wev.kind.shortage': 'Shortage',
+  'wev.kind.riot': 'Riot', 'wev.kind.decree': 'Decree', 'wev.kind.fire': 'Fire',
+  'wev.god.breach': 'GOD · Wall breach', 'wev.god.sighting': 'GOD · Colossus on the horizon', 'wev.god.alarm': 'GOD · Alarm',
+  'wev.godText.breach': 'A Colossus has broken the wall: {ring}.', 'wev.godText.sighting': 'A giant shape moves in the fog beyond the walls.', 'wev.godText.alarm': 'The tower bells ring the alarm.',
+  'feed.event': 'EVENT', 'ftype.EVENT': 'World events',
+  'plat.twitterW': 'Gate Square', 'plat.redditW': 'Market', 'plat.twitterFullW': 'Gate Square', 'plat.redditFullW': 'Market Square',
+  'god.wallsH': '🏰 Walls & Colossi', 'god.ringLbl': 'Wall ring', 'god.breach': '🧱 Breach the wall', 'god.colossus': '👁️ Colossus on the horizon', 'god.alarm': '🔔 Alarm',
+  'god.breachMsg': 'Wall breach — {ring}', 'god.colossusMsg': 'A Colossus appears on the horizon', 'god.alarmMsg': 'The bells ring the alarm',
+  'canvas.loadingW': 'Raising the walls…',
 };
 const DICT = { uk, en };
 

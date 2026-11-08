@@ -73,3 +73,5 @@ meta.events fire at the start of their round: banner + visuals (breach = broken 
 next ring; alarm = bells/red tint; sighting = colossus silhouettes beyond the outer wall; evacuation = agents of that ring walk
 inward; expedition_out/back = group exits/returns through the outer gate; shortage/riot/decree/fire = icons & crowd).
 God tab gains "Пролом у мурі" and "Колос на обрії" buttons when map is three_walls.
+Engine also emits 'world-event' {event, round, id} when a meta.events entry fires; UI feed shows it as «ПОДІЯ».
+God kinds added for three_walls: 'breach' {ring}, 'sighting', 'alarm' (visual only).

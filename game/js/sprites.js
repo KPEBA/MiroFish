@@ -86,9 +86,25 @@ export const CHAR_W = 12, CHAR_H = 20; // frame size incl. outline padding
 const DIRS = 4; // 0 down,1 left,2 right,3 up
 const FRAMES = 3; // 0 stand, 1 stepA, 2 stepB
 
-export function characterLook(id) {
+// muted clothing per ring for the "three_walls" theme
+const RING_CLOTHES = {
+  outer: { shirts: ['#7a6a52', '#6b6250', '#5e6650', '#8a7a5e', '#6a5a4a', '#77705e'], pants: ['#4a4036', '#3e3a33', '#544a3c'] },
+  middle: { shirts: ['#5a6a7a', '#6e5440', '#4e5e56', '#7a5a3a', '#5e4e5a', '#6a6a5a'], pants: ['#3a3a40', '#443a30', '#2f3a3a'] },
+  inner: { shirts: ['#5e2a3a', '#2f5d5a', '#4a2e5a', '#7a2e2e', '#2e3e6a', '#6a5a2a'], pants: ['#2a2430', '#26303a', '#3a2a2a'] },
+  beyond: { shirts: ['#5a4a32', '#4e4430', '#604e36'], pants: ['#3a3226', '#2f2a22'] },
+};
+export function characterLook(id, variant) {
   const rnd = mulberry32(hashStr('agent:' + id));
   const pick = arr => arr[Math.floor(rnd() * arr.length)];
+  const rc = variant && RING_CLOTHES[variant];
+  if (rc) {
+    const L = characterLook(id);
+    const r2 = mulberry32(hashStr('ring:' + id));
+    L.shirt = rc.shirts[Math.floor(r2() * rc.shirts.length)]; L.pants = rc.pants[Math.floor(r2() * rc.pants.length)];
+    if (variant === 'beyond') { L.style = 'cap'; L.cap = '#4a3a2a'; }
+    else if (L.style === 'cap') L.cap = shade(L.shirt, -0.25);
+    return L;
+  }
   return {
     skin: pick(SKINS), hair: pick(HAIRS), shirt: pick(SHIRTS), pants: pick(PANTS),
     shoes: rnd() < 0.5 ? '#3b2a24' : '#5a4038',
@@ -178,10 +194,10 @@ function paintChar(g, ox, oy, L, dir, frame) {
 
 /** Returns {sheet, fw, fh}: sheet laid out cols=frame, rows=dir. Cached by id. */
 const charCache = new Map();
-export function getCharacter(id) {
-  const key = String(id);
+export function getCharacter(id, variant) {
+  const key = String(id) + (variant ? ':' + variant : '');
   if (charCache.has(key)) return charCache.get(key);
-  const L = characterLook(id);
+  const L = characterLook(id, variant);
   const fw = CHAR_W, fh = CHAR_H;
   const [sheet, sg] = makeCanvas(fw * FRAMES, fh * DIRS);
   for (let d = 0; d < DIRS; d++) for (let f = 0; f < FRAMES; f++) {
@@ -215,6 +231,11 @@ const ICON_DEFS = {
   dots: { p: { W: '#ffffff' }, m: ['W.W.W'] },
   sad: { p: { B: '#6fa8ff', W: '#ffffff' }, m: ['..B..', '.BBB.', 'BBWBB', 'BBBBB', '.BBB.'] },
   music: { p: { P: '#ff7ab8' }, m: ['..PPP', '..P.P', '..P.P', 'PPP.P', 'PP.PP'] },
+  bell: { p: { Y: '#d6a24a', D: '#9a6a2a', L: '#ffe08a' }, m: ['...D...', '..YYY..', '.YLYYY.', '.YLYYY.', '.YYYYY.', 'YYYYYYY', 'DDDDDDD', '...D...'] },
+  angry: { p: { R: '#e8503a', D: '#4a100c', L: '#ff8a6a' }, m: ['.RRRRR.', 'RDLRLDR', 'RRDRDRR', 'RRRRRRR', 'RRDDDRR', 'RDRRRDR', '.RRRRR.'] },
+  scroll: { p: { W: '#efe4c4', B: '#8a6a3a', R: '#c0392b' }, m: ['BWWWWWB', '.WBBBW.', '.WWWWW.', '.WBBWW.', '.WWWWW.', 'BWWRWWB'] },
+  sack: { p: { S: '#c4ae80', D: '#8a7650', R: '#e8423a' }, m: ['..D....', '.SSS...', 'SSSSS.R', 'SSDSS.R', 'SSSSS.R', 'SSSSS..', '.SSS..R'] },
+  eye: { p: { Y: '#ffb43a', W: '#fff2b0', D: '#2a2622' }, m: ['.DDDDD.', 'DYYWYYD', 'DYWWWYD', '.DDDDD.'] },
 };
 const iconCache = new Map();
 export function getIcon(name, flipY = false) {
@@ -234,7 +255,7 @@ export const ACTION_ICON = {
 };
 
 // ---------------------------------------------------------------- ground tiles
-export const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, SAND: 4, PARK: 5, FIELD: 6, DEEP: 7, DOCK: 8, ROAD: 9 };
+export const T = { GRASS: 0, PATH: 1, PLAZA: 2, WATER: 3, SAND: 4, PARK: 5, FIELD: 6, DEEP: 7, DOCK: 8, ROAD: 9, WALL: 10, WHEAT: 11, MUD: 12 };
 const GRASS = { base: '#86c25e', dark: '#71ad4f', light: '#9cd473', blade: '#5f9a45' };
 
 export function paintTile(g, tiles, W, H, x, y, deco) {
