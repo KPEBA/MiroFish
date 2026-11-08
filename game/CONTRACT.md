@@ -59,3 +59,17 @@ getAgentState(id) -> { id, x, y, mood /*-1..1*/, activity /*string*/, lastAction
 - Day/night tint from hour; agents outside active_hours walk home and sleep (💤).
 - Stance colors: supportive green, opposing red, neutral blue, observer gray. Mood drifts with likes/dislikes received.
 - God events (cmd-god-event): visual only in replay (weather overlay, festival decorations, rumor ripple from Plaza) + logged in feed as "GOD".
+
+## v1.1 extension — map themes & world events (all fields optional, backward compatible)
+meta.map: "town" (default) | "three_walls"
+meta.world: { "name": str, "rings": { "outer": str, "middle": str, "inner": str } }   // display names (Ukrainian)
+agent.ring: "outer" | "middle" | "inner" | "beyond"   // where the agent lives/works; "beyond" = expedition/outside
+meta.events: [ { "round": int, "kind": "sighting"|"alarm"|"breach"|"evacuation"|"expedition_out"|"expedition_back"|"shortage"|"riot"|"decree"|"fire",
+                 "ring": "outer"|"middle"|"inner"|null, "title": str, "text": str } ]
+Engine: when meta.map == "three_walls", world.js generates a walled city (3 concentric walls with gates,
+outer ring = farms & slums, middle = crafts/market/barracks, inner = palace/council/temple), agents live in their ring,
+plaza/forum equivalents: outer "Брама-майдан" (twitter posts), middle "Ринкова площа" (reddit), inner "Палац ради".
+meta.events fire at the start of their round: banner + visuals (breach = broken wall segment + dust + fleeing crowd toward
+next ring; alarm = bells/red tint; sighting = colossus silhouettes beyond the outer wall; evacuation = agents of that ring walk
+inward; expedition_out/back = group exits/returns through the outer gate; shortage/riot/decree/fire = icons & crowd).
+God tab gains "Пролом у мурі" and "Колос на обрії" buttons when map is three_walls.
