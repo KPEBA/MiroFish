@@ -260,7 +260,8 @@ export function createEngine(canvas) {
     round = Number(round);
     let idx = rounds.findIndex(r => r.round >= round);
     if (idx < 0) idx = rounds.length - 1;
-    const teleport = opts.teleport !== false;
+    // teleport unless this is a small step (±1 round) or explicitly disabled; agents then just walk on
+    const teleport = opts.teleport != null ? opts.teleport : Math.abs(idx - roundIdx) > 1;
     resetSim();
     for (let i = 0; i < idx; i++) { for (const act of rounds[i].actions || []) applyAction(act, false); driftMoods(); }
     if (teleport) {
@@ -757,10 +758,17 @@ export function createEngine(canvas) {
       const [hx, hy] = S(a.x, a.y - 20);
       const X = hx * k, Y = hy * k;
       if (zcss >= 2) {
+        // mood pip beside the head (+ arrow flash when mood just changed)
         const c = moodColor(a.mood);
-        ctx.fillStyle = OUTLINE; ctx.fillRect(Math.round(X + 5 * zcss - 1), Math.round(Y + 1), 6, 6);
-        ctx.fillStyle = c; ctx.fillRect(Math.round(X + 5 * zcss), Math.round(Y + 2), 4, 4);
-        if (a.moodFlash) { ctx.fillStyle = a.moodFlash > 0 ? '#5fd16a' : '#ef5350'; const up = a.moodFlash > 0; const bx = Math.round(X + 5 * zcss + 6), by = Math.round(Y + 1); ctx.fillRect(bx + 1, by + (up ? 0 : 3), 1, 1); ctx.fillRect(bx, by + (up ? 1 : 2), 3, 1); ctx.fillRect(bx + 1, by + 2 - (up ? 0 : 1), 1, 2); }
+        const px = Math.round(X + 7 * zcss), py = Math.round(Y + 3 * zcss);
+        ctx.fillStyle = OUTLINE; ctx.fillRect(px - 1, py - 1, 6, 6);
+        ctx.fillStyle = c; ctx.fillRect(px, py, 4, 4);
+        if (a.moodFlash) {
+          const up = a.moodFlash > 0; ctx.fillStyle = up ? '#5fd16a' : '#ef5350';
+          const bx = px + 6, by = py - 1;
+          if (up) { ctx.fillRect(bx + 1, by, 1, 1); ctx.fillRect(bx, by + 1, 3, 1); ctx.fillRect(bx + 1, by + 2, 1, 3); }
+          else { ctx.fillRect(bx + 1, by, 1, 3); ctx.fillRect(bx, by + 3, 3, 1); ctx.fillRect(bx + 1, by + 4, 1, 1); }
+        }
       }
       if (a.alertT > 0) { const ic = getIcon('exclaim'); ctx.drawImage(ic, Math.round(X - ic.width), Math.round(Y - 22), ic.width * 2, ic.height * 2); }
       if (a.id === selected || a.id === hovered || a.id === followId) { sel.push(a); continue; }
@@ -881,6 +889,7 @@ export function createEngine(canvas) {
   function load(d) {
     if (!d || !Array.isArray(d.agents)) throw new Error('Invalid town data');
     const prev = data;
+    const prevRound = rounds[roundIdx] ? rounds[roundIdx].round : null;
     const sameTown = prev && world && prev.meta && d.meta && prev.meta.simulation_id === d.meta.simulation_id
       && prev.agents.length === d.agents.length && prev.agents.every((a, i) => a.id === d.agents[i].id && a.type === d.agents[i].type);
     data = d;
@@ -910,13 +919,13 @@ export function createEngine(canvas) {
     emit('data-loaded', { data });
     if (keep) {
       for (const a of agents) { const k = keep.get(a.id); if (k) { a.x = k.x; a.y = k.y; a.sleeping = k.sleeping; a.dir = k.dir; } }
-      seek(rounds.length ? rounds[0].round : 0, { teleport: false });
-    } else seek(rounds.length ? rounds[0].round : 0);
+      seek(prevRound != null ? prevRound : (rounds.length ? rounds[0].round : 0), { teleport: false });
+    } else seek(rounds.length ? rounds[0].round : 0, { teleport: true });
     emitState();
   }
   function play() {
     if (!data) return;
-    if (atEnd) seek(rounds[0].round);
+    if (atEnd) seek(rounds[0].round, { teleport: true });
     playing = true; last = performance.now(); emitState();
   }
   function pause() { playing = false; emitState(); }

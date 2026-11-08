@@ -143,7 +143,6 @@ function paintChar(g, ox, oy, L, dir, frame) {
     if (st === 'bun') H(3, -2, 4, 2);
     if (st === 'spiky') { H(2, -1); H(5, -1); H(7, -1); }
     if (st === 'cap') { P(1, 0, L.cap, 8, 3); P(2, -1, L.cap, 6, 1); }
-    P(4, 7, skin, 2, 1);
     return;
   }
   if (dir === 0) {
@@ -202,7 +201,7 @@ const ICON_DEFS = {
   heart: { p: { R: '#ef4f6b', W: '#ffd0da' }, m: ['.RR...RR.', 'RWRR.RRRR', 'RRRRRRRRR', 'RRRRRRRRR', '.RRRRRRR.', '..RRRRR..', '...RRR...', '....R....'] },
   like: { p: { Y: '#ffcf4a', B: '#4a7fd8', D: '#e0a92f' }, m: ['....Y....', '...YY....', '...YY....', 'BB.YYYYY.', 'BBYYYYYYY', 'BBYYYYYD.', 'BBYYYYYYY', 'BB.YYYYY.'] },
   speech: { p: { W: '#ffffff', G: '#7a7f99' }, m: ['WWWWWWWWW', 'WWWWWWWWW', 'WGWWGWWGW', 'WWWWWWWWW', 'WWWWWWWWW', '.WW......', '.W.......'] },
-  repost: { p: { G: '#42c070' }, m: ['.....G...', 'GGGGGGGG.', 'G....G...', 'G........', '........G', '...G....G', '.GGGGGGGG', '...G.....'] },
+  repost: { p: { G: '#42c070', L: '#8fe0a8' }, m: ['...GGGG..', '..GLLLLG.', '.GG...GGG', '.G....LG.', '.G.......', '.......G.', '.GL....G.', 'GGG...GG.', '.GLLLLG..', '..GGGG...'] },
   mute: { p: { S: '#9aa0b8', R: '#ef4f6b' }, m: ['...S.....', '..SS.R..R', 'SSSS..RR.', 'SSSS..RR.', '..SS.R..R', '...S.....'] },
   search: { p: { M: '#8a8fa8', L: '#9fd6f5', W: '#ffffff' }, m: ['.MMM.....', 'MLWLM....', 'MLLLM....', 'MLLLM....', '.MMMM....', '....MM...', '.....MM..'] },
   fire: { p: { R: '#f0553a', Y: '#ffc23a', W: '#fff6c8' }, m: ['....R....', '...RR....', '..RRR.R..', '.RRYRRR..', '.RYYYRR..', '.RYWYYR..', '..RYYR...'] },
