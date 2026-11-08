@@ -1,13 +1,16 @@
 // Swarm Town — ui.js : all DOM UI (top bar, sidebar, timeline, toasts, dialogs). No frameworks.
 import { emit, on } from './bus.js';
 import { createLiveClient } from './live.js';
+import { t, getLang, setLang, onLangChange, prettyType } from './i18n.js';
 
 const STANCE_COLOR = { supportive: '#6fbf73', opposing: '#e0645c', neutral: '#5b9bd5', observer: '#9a9a9a' };
 const ICONS = { POST: '✍️', COMMENT: '💬', LIKE: '👍', DISLIKE: '👎', REPOST: '🔁', QUOTE: '📎',
   FOLLOW: '➕', MUTE: '🔇', SEARCH: '🔍', TREND: '📈', IDLE: '💤', GOD: '⚡' };
-const VERBS = { POST: 'posted', COMMENT: 'commented', LIKE: 'liked a post', DISLIKE: 'disliked a post',
-  REPOST: 'reposted', QUOTE: 'quoted', FOLLOW: 'followed', MUTE: 'muted', SEARCH: 'searched', TREND: 'checked trends', IDLE: 'is idle' };
-const PLATFORM = { twitter: { icon: '🐦', label: 'Square' }, reddit: { icon: '📜', label: 'Forum' } };
+const verbOf = type => (type === 'GOD' ? '' : ({ POST: 1, COMMENT: 1, LIKE: 1, DISLIKE: 1, REPOST: 1, QUOTE: 1, FOLLOW: 1, MUTE: 1, SEARCH: 1, TREND: 1, IDLE: 1 })[type] ? t('verb.' + type) : String(type).toLowerCase());
+const PLATFORM = { twitter: { icon: '🐦' }, reddit: { icon: '📜' } };
+const platLabel = p => (PLATFORM[p] ? t('plat.' + p) : p);
+const stanceLabel = s => (STANCE_COLOR[s] ? t('stance.' + s) : s);
+const phaseOf = h => (h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night');
 const SPEEDS = [0.5, 1, 2, 4, 8];
 const FEED_CAP = 300;
 const STOP = new Set(('the and for are but not you your with this that have has had was were will would can could should from they them their there here what when who how why '
@@ -59,22 +62,43 @@ export function initUI(engine, bus) {
   // =====================================================================
   // TOP BAR
   // =====================================================================
-  const $clock = el('div', { class: 'clock', title: 'Simulated time' }, 'Day 1 · 00:00');
-  const $simTitle = el('div', { class: 'sim-title' }, 'No simulation loaded');
-  const $play = el('button', { class: 'btn primary', id: 'btn-play', title: 'Play / pause (Space)', 'aria-label': 'Play or pause', onclick: togglePlay }, '▶');
-  const $speedBtns = SPEEDS.map((s, i) => el('button', { class: 'btn speed', title: `Speed ${s}× (${i + 1})`, onclick: () => emit('cmd-speed', { speed: s }) }, `${s}×`));
+  // Static labels register a re-apply function so a language switch can refresh them in place.
+  const relabelFns = [];
+  const L = (node, fn) => { fn(node); relabelFns.push(() => fn(node)); return node; };
+  const $clock = el('div', { class: 'clock' });
+  const $clockTxt = el('span', {}, '');
+  const $phase = el('span', { class: 'phase' });
+  $clock.append($clockTxt, $phase);
+  const $simTitle = el('div', { class: 'sim-title' });
+  const $play = L(el('button', { class: 'btn primary', id: 'btn-play', onclick: togglePlay }, '▶'), n => { n.title = t('top.play'); n.setAttribute('aria-label', t('top.playAria')); });
+  const $speedBtns = SPEEDS.map((s, i) => L(el('button', { class: 'btn speed', onclick: () => emit('cmd-speed', { speed: s }) }, `${s}×`), n => { n.title = t('top.speedTip', { s, i: i + 1 }); }));
   const $file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: onFile });
-  const $liveBtn = el('button', { class: 'btn', id: 'btn-live', title: 'Connect to a running MiroFish backend', onclick: openLiveDialog }, '📡 Live');
-  const $loadBtn = el('button', { class: 'btn', title: 'Load a town_data.json file', onclick: () => $file.click() }, '📂 Load data');
-  const $stepBack = el('button', { class: 'btn icon', title: 'Previous round (←)', 'aria-label': 'Previous round', onclick: () => seekBy(-1) }, '⏮');
-  const $stepFwd = el('button', { class: 'btn icon', title: 'Next round (→)', 'aria-label': 'Next round', onclick: () => seekBy(1) }, '⏭');
-  const $roundLbl = el('span', { class: 'round-lbl' }, 'R 0/0');
+  const $liveBtn = el('button', { class: 'btn', id: 'btn-live', onclick: () => openLiveDialog() });
+  const $loadBtn = L(el('button', { class: 'btn', onclick: () => $file.click() }), n => { n.title = t('top.loadTip'); n.textContent = t('top.load'); });
+  const $stepBack = L(el('button', { class: 'btn icon', onclick: () => seekBy(-1) }, '⏮'), n => { n.title = t('top.prev'); n.setAttribute('aria-label', t('top.prevAria')); });
+  const $stepFwd = L(el('button', { class: 'btn icon', onclick: () => seekBy(1) }, '⏭'), n => { n.title = t('top.next'); n.setAttribute('aria-label', t('top.nextAria')); });
+  const $roundLbl = el('span', { class: 'round-lbl' });
+  const $speedGroup = L(el('div', { class: 'speed-group', role: 'group' }, $speedBtns), n => n.setAttribute('aria-label', t('top.speed')));
+  const $lang = el('div', { class: 'lang-toggle', role: 'group' },
+    ...['uk', 'en'].map(code => el('button', { class: 'lang-btn', type: 'button', dataset: { lang: code }, onclick: () => setLang(code) }, code === 'uk' ? 'UA' : 'EN')));
+  L($lang, n => { n.title = t('lang.title'); n.setAttribute('aria-label', t('lang.title'));
+    n.querySelectorAll('.lang-btn').forEach(b => { const on = b.dataset.lang === getLang(); b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); }); });
+  L($clock, n => { n.title = t('top.clock'); });
+  const brandTitle = L(el('span', { class: 'game-title' }), n => { n.textContent = t('app.title'); });
   $top.replaceChildren(
-    el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, '🏘️'), el('span', { class: 'game-title' }, 'Swarm Town')),
+    el('div', { class: 'brand' }, el('span', { class: 'logo', 'aria-hidden': 'true' }, '🏘️'), brandTitle),
     $simTitle, $clock,
-    el('div', { class: 'controls' }, $stepBack, $play, $stepFwd, $roundLbl,
-      el('div', { class: 'speed-group', role: 'group', 'aria-label': 'Speed' }, $speedBtns)),
-    el('div', { class: 'top-actions' }, $loadBtn, $liveBtn, $file));
+    el('div', { class: 'controls' }, $stepBack, $play, $stepFwd, $roundLbl, $speedGroup),
+    el('div', { class: 'top-actions' }, $loadBtn, $liveBtn, $lang, $file));
+  function renderClock() {
+    $clockTxt.textContent = `${t('top.day', { day: S.day })} · ${pad2(S.hour)}:${pad2(S.minute)}`;
+    $phase.textContent = t('phase.' + phaseOf(S.hour));
+  }
+  function renderSimTitle() {
+    const d = S.data;
+    $simTitle.textContent = d ? (d.meta.title || d.meta.simulation_id || '…') : t('app.noSim');
+    $simTitle.title = d ? (d.meta.requirement || '') : '';
+  }
 
   function togglePlay() { emit(S.playing ? 'cmd-pause' : 'cmd-play', {}); }
   function seekBy(d) {
@@ -89,11 +113,11 @@ export function initUI(engine, bus) {
     rd.onload = () => {
       try {
         const d = JSON.parse(rd.result);
-        if (!d.agents || !d.rounds || !d.meta) throw new Error('Missing meta / agents / rounds — not a town_data.json');
+        if (!d.agents || !d.rounds || !d.meta) throw new Error(t('toast.badFile'));
         live.disconnect();
         emit('cmd-load-data', { data: d });
-        toast('Loaded ' + f.name, '📂');
-      } catch (err) { toast('Could not load file: ' + err.message, '⚠️', 'bad'); }
+        toast(t('toast.loaded', { name: f.name }), '📂');
+      } catch (err) { toast(t('toast.loadFail', { err: err.message }), '⚠️', 'bad'); }
     };
     rd.readAsText(f);
   }
@@ -101,19 +125,22 @@ export function initUI(engine, bus) {
     $play.textContent = S.playing ? '⏸' : '▶';
     $play.classList.toggle('active', S.playing);
     $speedBtns.forEach((b, i) => b.classList.toggle('active', SPEEDS[i] === S.speed));
-    $roundLbl.textContent = `R ${S.round}/${S.totalRounds}`;
+    $roundLbl.textContent = t('top.round', { r: S.round, total: S.totalRounds });
+    $roundLbl.title = t('top.roundTip', { r: S.round, total: S.totalRounds });
   }
 
   // =====================================================================
   // SIDEBAR scaffold
   // =====================================================================
-  const TABS = [['feed', '📰', 'Feed'], ['agent', '🧑', 'Agent'], ['stats', '📊', 'Town'], ['god', '⚡', 'God']];
+  const TABS = [['feed', '📰'], ['agent', '🧑'], ['stats', '📊'], ['god', '⚡']];
   const $panels = {};
   const $tabBtns = {};
   const $tablist = el('div', { class: 'tabs', role: 'tablist' });
-  const $sheetHandle = el('button', { class: 'sheet-handle', 'aria-label': 'Expand or collapse panel', onclick: () => $side.classList.toggle('sheet-collapsed') }, el('span', { class: 'grip' }));
-  for (const [id, ic, label] of TABS) {
-    $tabBtns[id] = el('button', { class: 'tab', role: 'tab', id: 'tab-' + id, onclick: () => { setTab(id); $side.classList.remove('sheet-collapsed'); } }, el('span', { class: 'tic', 'aria-hidden': 'true' }, ic), ' ', label);
+  const $sheetHandle = el('button', { class: 'sheet-handle', onclick: () => $side.classList.toggle('sheet-collapsed') }, el('span', { class: 'grip' }));
+  L($sheetHandle, n => n.setAttribute('aria-label', t('sheet.toggle')));
+  for (const [id, ic] of TABS) {
+    const tabLbl = L(el('span', { class: 'tlbl' }), n => { n.textContent = t('tab.' + id); });
+    $tabBtns[id] = el('button', { class: 'tab', role: 'tab', id: 'tab-' + id, onclick: () => { setTab(id); $side.classList.remove('sheet-collapsed'); } }, el('span', { class: 'tic', 'aria-hidden': 'true' }, ic), ' ', tabLbl);
     $panels[id] = el('section', { class: 'panel', role: 'tabpanel', 'aria-labelledby': 'tab-' + id });
     $tablist.append($tabBtns[id]);
   }
@@ -132,15 +159,20 @@ export function initUI(engine, bus) {
   // =====================================================================
   // FEED
   // =====================================================================
-  const $fAgent = el('select', { 'aria-label': 'Filter by agent', onchange: () => { S.filters.agent = $fAgent.value; applyFeedFilter(); } });
-  const $fPlat = el('select', { 'aria-label': 'Filter by platform', onchange: () => { S.filters.platform = $fPlat.value; applyFeedFilter(); } },
-    el('option', { value: 'all' }, 'All places'), el('option', { value: 'twitter' }, '🐦 Town Square'), el('option', { value: 'reddit' }, '📜 Forum'));
-  const TYPE_GROUPS = [['default', 'All actions'], ['POST', 'Posts'], ['COMMENT', 'Comments'], ['LIKE', 'Likes'], ['DISLIKE', 'Dislikes'],
-    ['REPOST', 'Reposts/quotes'], ['FOLLOW', 'Follows'], ['GOD', 'God events'], ['IDLE', 'Idle']];
-  const $fType = el('select', { 'aria-label': 'Filter by type', onchange: () => { S.filters.type = $fType.value; applyFeedFilter(); } },
-    TYPE_GROUPS.map(([v, l]) => el('option', { value: v }, l)));
+  const $fAgent = L(el('select', { onchange: () => { S.filters.agent = $fAgent.value; applyFeedFilter(); } }), n => n.setAttribute('aria-label', t('feed.fAgent')));
+  const $fPlat = L(el('select', { onchange: () => { S.filters.platform = $fPlat.value; applyFeedFilter(); } },
+    el('option', { value: 'all' }), el('option', { value: 'twitter' }), el('option', { value: 'reddit' })), n => {
+    n.setAttribute('aria-label', t('feed.fPlat'));
+    n.options[0].textContent = t('feed.allPlaces'); n.options[1].textContent = '🐦 ' + t('plat.twitterFull'); n.options[2].textContent = '📜 ' + t('plat.redditFull');
+  });
+  const TYPE_GROUPS = ['default', 'POST', 'COMMENT', 'LIKE', 'DISLIKE', 'REPOST', 'FOLLOW', 'GOD', 'IDLE'];
+  const $fType = L(el('select', { onchange: () => { S.filters.type = $fType.value; applyFeedFilter(); } },
+    TYPE_GROUPS.map(v => el('option', { value: v }))), n => {
+    n.setAttribute('aria-label', t('feed.fType'));
+    TYPE_GROUPS.forEach((v, i) => { n.options[i].textContent = t('ftype.' + v); });
+  });
   const $feedList = el('div', { class: 'feed-list', role: 'log', 'aria-live': 'off' });
-  const $feedEmpty = el('div', { class: 'empty' }, 'The town is quiet. Press play to watch what happens.');
+  const $feedEmpty = L(el('div', { class: 'empty' }), n => { n.textContent = t('feed.empty'); });
   $panels.feed.append(el('div', { class: 'filters' }, $fAgent, $fPlat, $fType), $feedList, $feedEmpty);
 
   function feedMatches(it) {
@@ -172,14 +204,14 @@ export function initUI(engine, bus) {
     const plat = PLATFORM[a.platform];
     const stance = ag ? ag.stance : 'observer';
     const it = el('article', { class: 'feed-item' + (opts.god ? ' god' : '') + (` t-${type}`), dataset: { agent: String(ag ? ag.id : 'god'), platform: a.platform || '', type } },
-      el('span', { class: 'dot', style: { background: opts.god ? '#f2b84b' : STANCE_COLOR[stance] || '#999' }, title: stance }, opts.god ? '⚡' : (ag ? ag.name.trim().charAt(0).toUpperCase() : '?')),
+      el('span', { class: 'dot', style: { background: opts.god ? '#f2b84b' : STANCE_COLOR[stance] || '#999' }, dataset: { stance }, title: opts.god ? '' : stanceLabel(stance) }, opts.god ? '⚡' : (ag ? ag.name.trim().charAt(0).toUpperCase() : '?')),
       el('div', { class: 'fi-body' },
         el('div', { class: 'fi-head' },
-          el('span', { class: 'fi-name' }, opts.god ? 'GOD' : (ag ? ag.name : `Agent ${a.agent_id}`)),
-          plat && el('span', { class: 'badge plat', title: plat.label }, plat.icon),
+          el('span', { class: 'fi-name', dataset: ag ? {} : { fallback: opts.god ? 'god' : String(a.agent_id) } }, opts.god ? t('feed.god') : (ag ? ag.name : t('feed.agentN', { id: a.agent_id }))),
+          plat && el('span', { class: 'badge plat', dataset: { p: a.platform }, title: platLabel(a.platform) }, plat.icon),
           el('span', { class: 'fi-ic', title: type }, ICONS[type] || '•'),
-          el('span', { class: 'fi-verb' }, opts.god ? '' : (VERBS[type] || type.toLowerCase())),
-          el('span', { class: 'fi-time' }, opts.time || '')),
+          el('span', { class: 'fi-verb', dataset: { type } }, verbOf(type)),
+          el('span', { class: 'fi-time', dataset: { round: opts.round ?? '' } }, opts.round != null ? timeLabel(opts.round) : '')),
         (opts.god ? a.content : feedText(a, ag)) && el('div', { class: 'fi-text' }, opts.god ? a.content : feedText(a, ag))));
     if (!opts.god && ag) it.addEventListener('click', () => emit('cmd-select-agent', { agentId: ag.id }));
     it.hidden = !feedMatches(it);
@@ -191,7 +223,17 @@ export function initUI(engine, bus) {
     if (!opts.append && $feedList.scrollTop > 0) $feedList.scrollTop += $feedList.scrollHeight - before;
     void sc;
   }
-  function timeLabel(r) { const rr = S.data && S.data.rounds.find(x => x.round === r); return rr ? `D${rr.day} ${pad2(rr.hour)}:${pad2(rr.minute)}` : `R${r}`; }
+  function timeLabel(r) { const rr = S.data && S.data.rounds.find(x => x.round === r); return rr ? t('tl.short', { day: rr.day, time: `${pad2(rr.hour)}:${pad2(rr.minute)}` }) : t('tl.r', { r }); }
+  function relabelFeed() {
+    for (const it of $feedList.children) {
+      it.querySelector('.fi-verb').textContent = verbOf(it.dataset.type);
+      const pl = it.querySelector('.plat'); if (pl) pl.title = platLabel(pl.dataset.p);
+      const dot = it.querySelector('.dot'); if (dot && dot.dataset.stance && !it.classList.contains('god')) dot.title = stanceLabel(dot.dataset.stance);
+      const nm = it.querySelector('.fi-name');
+      if (nm.dataset.fallback) nm.textContent = nm.dataset.fallback === 'god' ? t('feed.god') : t('feed.agentN', { id: nm.dataset.fallback });
+      const tm = it.querySelector('.fi-time'); if (tm.dataset.round !== '') tm.textContent = timeLabel(+tm.dataset.round);
+    }
+  }
   function rebuildFeed(upTo) {
     $feedList.replaceChildren();
     S.feedIds.clear();
@@ -201,7 +243,7 @@ export function initUI(engine, bus) {
       if (a.type === 'LIKE' && a.post_id) S.likeCounts.set(a.post_id, (S.likeCounts.get(a.post_id) || 0) + 1);
       if (a.type !== 'IDLE') acts.push([r, a]);
     }
-    for (const [r, a] of acts.slice(-60)) addFeedItem(a, agent(a.agent_id), { append: false, time: timeLabel(r.round) });
+    for (const [r, a] of acts.slice(-60)) addFeedItem(a, agent(a.agent_id), { append: false, round: r.round });
     for (const [, a] of acts) S.feedIds.add(a.id);
     $feedEmpty.hidden = $feedList.children.length > 0;
     applyFeedFilter();
@@ -219,7 +261,7 @@ export function initUI(engine, bus) {
     const ag = agent(S.selected);
     $agentBody.replaceChildren();
     if (!ag) {
-      $agentBody.append(el('div', { class: 'empty' }, 'Click an agent in the town or in the feed to inspect them.'));
+      $agentBody.append(el('div', { class: 'empty' }, t('ag.empty')));
       return;
     }
     $moodMarker = el('span', { class: 'mood-marker' });
@@ -227,26 +269,26 @@ export function initUI(engine, bus) {
     $statsGrid = el('div', { class: 'stat-grid' });
     $recent = el('div', { class: 'recent' });
     $rel = el('div', { class: 'rel' });
-    const follow = el('label', { class: 'toggle' }, el('input', { type: 'checkbox', checked: S.follow ? true : null, onchange: e => { S.follow = e.target.checked; emit('cmd-follow-camera', { agentId: S.follow ? ag.id : null }); } }), ' 🎥 Follow camera');
+    const follow = el('label', { class: 'toggle' }, el('input', { type: 'checkbox', checked: S.follow ? true : null, onchange: e => { S.follow = e.target.checked; emit('cmd-follow-camera', { agentId: S.follow ? ag.id : null }); } }), t('ag.follow'));
     $askLog = el('div', { class: 'chat-log' });
-    $askInput = el('input', { type: 'text', placeholder: `Ask ${ag.name}…`, maxlength: 400, 'aria-label': 'Question for agent', onkeydown: e => { if (e.key === 'Enter') ask(ag); } });
-    $askBtn = el('button', { class: 'btn primary', onclick: () => ask(ag) }, 'Ask');
+    $askInput = el('input', { type: 'text', placeholder: t('ag.askPh', { name: ag.name }), maxlength: 400, 'aria-label': t('ag.askAria'), onkeydown: e => { if (e.key === 'Enter') ask(ag); } });
+    $askBtn = el('button', { class: 'btn primary', onclick: () => ask(ag) }, t('ag.askBtn'));
     $askHint = el('div', { class: 'hint' });
     (S.chats.get(ag.id) || []).forEach(m => $askLog.append(chatMsg(m.who, m.text, m.cls)));
     $agentBody.append(
       el('header', { class: 'ag-head' },
         el('span', { class: 'dot big', style: { background: STANCE_COLOR[ag.stance] } }, ag.name.trim().charAt(0).toUpperCase()),
         el('div', {}, el('h2', {}, ag.name), el('div', { class: 'muted' }, '@' + ag.username)),
-        el('button', { class: 'btn icon', title: 'Deselect (Esc)', 'aria-label': 'Deselect', onclick: () => emit('cmd-select-agent', { agentId: null }) }, '✕')),
-      el('div', { class: 'pills' }, pill(ag.type, 'type'), pill(ag.stance, 'stance', STANCE_COLOR[ag.stance]),
-        ag.mbti && pill(ag.mbti), ag.age != null && pill(ag.age + ' y/o'), ag.profession && pill(ag.profession)),
+        el('button', { class: 'btn icon', title: t('ag.deselect'), 'aria-label': t('ag.deselectAria'), onclick: () => emit('cmd-select-agent', { agentId: null }) }, '✕')),
+      el('div', { class: 'pills' }, pill(prettyType(ag.type), 'type'), pill(stanceLabel(ag.stance), 'stance', STANCE_COLOR[ag.stance]),
+        ag.mbti && pill(ag.mbti), ag.age != null && pill(t('ag.age', { n: ag.age })), ag.profession && pill(ag.profession)),
       ag.bio && el('p', { class: 'bio' }, ag.bio),
-      ag.persona && el('details', { class: 'persona' }, el('summary', {}, 'Persona'), el('p', {}, ag.persona)),
-      el('div', { class: 'mood' }, el('div', { class: 'mood-bar', title: 'Mood (-1 grumpy … +1 happy)' }, $moodMarker), $moodTxt),
+      ag.persona && el('details', { class: 'persona' }, el('summary', {}, t('ag.persona')), el('p', {}, ag.persona)),
+      el('div', { class: 'mood' }, el('div', { class: 'mood-bar', title: t('ag.moodTip') }, $moodMarker), $moodTxt),
       $statsGrid, follow,
-      el('h3', {}, 'Recent actions'), $recent,
-      el('h3', {}, 'Relationships'), $rel,
-      el('h3', {}, 'Ask this agent'), $askLog,
+      el('h3', {}, t('ag.recent')), $recent,
+      el('h3', {}, t('ag.rel')), $rel,
+      el('h3', {}, t('ag.ask')), $askLog,
       el('div', { class: 'ask-row' }, $askInput, $askBtn), $askHint);
     updateAskState();
     refreshAgentDynamic();
@@ -256,9 +298,7 @@ export function initUI(engine, bus) {
     if (!$askInput) return;
     const ok = live.connected;
     $askInput.disabled = !ok; $askBtn.disabled = !ok;
-    $askHint.textContent = ok
-      ? 'Interviews need the simulation environment to still be alive on the backend (it waits for commands after the run finishes). Answers can take up to a minute.'
-      : 'Interviews are only available when connected to a live MiroFish simulation (use the “Live” button). Replay files cannot answer questions.';
+    $askHint.textContent = t(ok ? 'ag.hintOn' : 'ag.hintOff');
   }
   async function ask(ag) {
     const q = $askInput.value.trim();
@@ -266,11 +306,11 @@ export function initUI(engine, bus) {
     $askInput.value = ''; $askBtn.disabled = true;
     const log = S.chats.get(ag.id) || []; S.chats.set(ag.id, log);
     const push = (who, text, cls) => { log.push({ who, text, cls }); if (S.selected === ag.id && $askLog) { $askLog.append(chatMsg(who, text, cls)); $askLog.scrollTop = 1e6; } };
-    push('You', q, 'me');
+    push(t('ag.you'), q, 'me');
     try {
       const rs = await live.interview(live.simId, ag.id, q);
-      rs.forEach(r => push(ag.name + (r.platform ? ` (${PLATFORM[r.platform]?.label || r.platform})` : ''), r.response, 'them'));
-    } catch (e) { push('Error', e.message, 'err'); }
+      rs.forEach(r => push(ag.name + (r.platform ? ` (${platLabel(r.platform)})` : ''), r.response, 'them'));
+    } catch (e) { push(t('ag.error'), e.message, 'err'); }
     if ($askBtn) $askBtn.disabled = !live.connected;
   }
   function refreshAgentDynamic() {
@@ -283,7 +323,7 @@ export function initUI(engine, bus) {
       $moodMarker.style.left = ((m + 1) / 2 * 100) + '%';
       $moodTxt.textContent = `${m > 0.35 ? '😄' : m > 0.1 ? '🙂' : m < -0.35 ? '😠' : m < -0.1 ? '😕' : '😐'} ${m.toFixed(2)} · ${st.activity || ''}`;
       const s = st.stats || {};
-      $statsGrid.replaceChildren(...[['Posts', s.posts], ['Likes', s.likes], ['Comments', s.comments], ['Follows', s.follows], ['Followers', s.followers]]
+      $statsGrid.replaceChildren(...[[t('st.posts'), s.posts], [t('st.likes'), s.likes], [t('st.comments'), s.comments], [t('st.follows'), s.follows], [t('st.followers'), s.followers]]
         .map(([l, v]) => el('div', { class: 'stat' }, el('b', {}, v ?? 0), el('span', {}, l))));
     }
     // recent
@@ -296,28 +336,29 @@ export function initUI(engine, bus) {
       }
     }
     $recent.replaceChildren(...(rec.length ? rec.map(([r, a]) => el('div', { class: 'rec' }, el('span', { class: 'fi-ic' }, ICONS[a.type] || '•'), ' ',
-      el('span', { class: 'muted' }, timeLabel(r.round) + ' '), trunc(feedText(a, ag) || VERBS[a.type], 110))) : [el('div', { class: 'muted' }, 'Nothing yet.')]));
+      el('span', { class: 'muted' }, timeLabel(r.round) + ' '), trunc(feedText(a, ag) || verbOf(a.type), 110))) : [el('div', { class: 'muted' }, t('ag.none'))]));
     const fol = S.data.follows.filter(f => f.round <= S.round);
-    const chips = ids => ids.length ? ids.slice(0, 40).map(id => { const o = agent(id); return o && el('button', { class: 'chip', onclick: () => emit('cmd-select-agent', { agentId: id }) }, el('i', { style: { background: STANCE_COLOR[o.stance] } }), o.name); }) : [el('span', { class: 'muted' }, 'none')];
-    $rel.replaceChildren(el('div', { class: 'muted small' }, 'Followers'), el('div', { class: 'chips' }, chips(fol.filter(f => f.to === ag.id).map(f => f.from))),
-      el('div', { class: 'muted small' }, 'Following'), el('div', { class: 'chips' }, chips(fol.filter(f => f.from === ag.id).map(f => f.to))));
+    const chips = ids => ids.length ? ids.slice(0, 40).map(id => { const o = agent(id); return o && el('button', { class: 'chip', onclick: () => emit('cmd-select-agent', { agentId: id }) }, el('i', { style: { background: STANCE_COLOR[o.stance] } }), o.name); }) : [el('span', { class: 'muted' }, t('ag.noneShort'))];
+    $rel.replaceChildren(el('div', { class: 'muted small' }, t('ag.followers')), el('div', { class: 'chips' }, chips(fol.filter(f => f.to === ag.id).map(f => f.from))),
+      el('div', { class: 'muted small' }, t('ag.following')), el('div', { class: 'chips' }, chips(fol.filter(f => f.from === ag.id).map(f => f.to))));
   }
 
   // =====================================================================
   // TOWN STATS
   // =====================================================================
-  const $spark = el('canvas', { class: 'spark', height: 64, 'aria-label': 'Actions per round' });
+  const $spark = el('canvas', { class: 'spark', height: 64 });
+  L($spark, n => n.setAttribute('aria-label', t('st.perRoundAria')));
   const $statsBody = el('div', { class: 'stats-body' });
   $panels.stats.append($statsBody);
   let statsTimer = null;
   function scheduleStats() { if (S.tab !== 'stats' || statsTimer) return; statsTimer = setTimeout(() => { statsTimer = null; refreshStats(); }, 500); }
-  function bars(map, colorFn, total) {
+  function bars(map, colorFn, total, labelFn = k => k) {
     return [...map.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => el('div', { class: 'bar-row' },
-      el('span', { class: 'bl' }, k), el('span', { class: 'bt' }, el('i', { style: { width: (v / Math.max(1, total) * 100) + '%', background: colorFn(k) } })), el('span', { class: 'bv' }, v)));
+      el('span', { class: 'bl' }, labelFn(k)), el('span', { class: 'bt' }, el('i', { style: { width: (v / Math.max(1, total) * 100) + '%', background: colorFn(k) } })), el('span', { class: 'bv' }, v)));
   }
   function refreshStats() {
     if (S.tab !== 'stats') return;
-    if (!S.data) { $statsBody.replaceChildren(el('div', { class: 'empty' }, 'No data loaded.')); return; }
+    if (!S.data) { $statsBody.replaceChildren(el('div', { class: 'empty' }, t('st.noData'))); return; }
     const byType = new Map(), byStance = new Map();
     S.data.agents.forEach(a => { byType.set(a.type, (byType.get(a.type) || 0) + 1); byStance.set(a.stance, (byStance.get(a.stance) || 0) + 1); });
     const perRound = [], likes = new Map(), recvLikes = new Map(), words = new Map(), authors = new Map();
@@ -340,17 +381,17 @@ export function initUI(engine, bus) {
     const infl = S.data.agents.map(a => [a, (followers.get(a.id) || 0) * 2 + (recvLikes.get(a.id) || 0)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const total = perRound.reduce((a, b) => a + b, 0);
     $statsBody.replaceChildren(
-      el('div', { class: 'stat-grid' }, ...[['Agents', S.data.agents.length], ['Actions', total], ['Posts', authors.size], ['Follows', S.data.follows.filter(f => f.round <= S.round).length]]
+      el('div', { class: 'stat-grid' }, ...[[t('st.agents'), S.data.agents.length], [t('st.actions'), total], [t('st.posts'), authors.size], [t('st.follows'), S.data.follows.filter(f => f.round <= S.round).length]]
         .map(([l, v]) => el('div', { class: 'stat' }, el('b', {}, v), el('span', {}, l)))),
-      el('h3', {}, 'Population by stance'), el('div', { class: 'bars' }, bars(byStance, k => STANCE_COLOR[k] || '#999', S.data.agents.length)),
-      el('h3', {}, 'Population by type'), el('div', { class: 'bars' }, bars(byType, () => 'var(--accent)', S.data.agents.length)),
-      el('h3', {}, 'Actions per round'), $spark,
-      el('h3', {}, 'Top posts'), topPosts.length ? el('ol', { class: 'list' }, topPosts.map(([pid, a, n]) => el('li', { onclick: () => emit('cmd-select-agent', { agentId: a.agent_id }) },
-        el('b', {}, `👍 ${n}`), ' ', el('span', { class: 'muted' }, (agent(a.agent_id)?.name || '?') + ': '), trunc(a.content, 100)))) : el('div', { class: 'muted' }, 'No posts yet.'),
-      el('h3', {}, 'Trending words'), el('div', { class: 'words' }, topWords.length ? topWords.map(([w, c], i) => el('span', { class: 'word', style: { fontSize: (0.8 + 0.5 * (1 - i / topWords.length)) + 'rem' } }, w, el('sup', {}, c))) : el('span', { class: 'muted' }, 'Nothing trending yet.')),
-      el('h3', {}, 'Most influential'), infl.length ? el('ol', { class: 'list' }, infl.map(([a, sc]) => el('li', { onclick: () => emit('cmd-select-agent', { agentId: a.id }) },
-        el('i', { class: 'mini-dot', style: { background: STANCE_COLOR[a.stance] } }), ' ', el('b', {}, a.name), el('span', { class: 'muted' }, ` · score ${sc} · ${followers.get(a.id) || 0} followers`))))
-        : el('div', { class: 'muted' }, 'No influence yet.'));
+      el('h3', {}, t('st.byStance')), el('div', { class: 'bars' }, bars(byStance, k => STANCE_COLOR[k] || '#999', S.data.agents.length, stanceLabel)),
+      el('h3', {}, t('st.byType')), el('div', { class: 'bars' }, bars(byType, () => 'var(--accent)', S.data.agents.length, prettyType)),
+      el('h3', {}, t('st.perRound')), $spark,
+      el('h3', {}, t('st.top')), topPosts.length ? el('ol', { class: 'list' }, topPosts.map(([pid, a, n]) => el('li', { onclick: () => emit('cmd-select-agent', { agentId: a.agent_id }) },
+        el('b', {}, `👍 ${n}`), ' ', el('span', { class: 'muted' }, (agent(a.agent_id)?.name || '?') + ': '), trunc(a.content, 100)))) : el('div', { class: 'muted' }, t('st.noPosts')),
+      el('h3', {}, t('st.words')), el('div', { class: 'words' }, topWords.length ? topWords.map(([w, c], i) => el('span', { class: 'word', style: { fontSize: (0.8 + 0.5 * (1 - i / topWords.length)) + 'rem' } }, w, el('sup', {}, c))) : el('span', { class: 'muted' }, t('st.noWords'))),
+      el('h3', {}, t('st.infl')), infl.length ? el('ol', { class: 'list' }, infl.map(([a, sc]) => el('li', { onclick: () => emit('cmd-select-agent', { agentId: a.id }) },
+        el('i', { class: 'mini-dot', style: { background: STANCE_COLOR[a.stance] } }), ' ', el('b', {}, a.name), el('span', { class: 'muted' }, t('st.score', { score: sc, followers: t('n.followers', { n: followers.get(a.id) || 0 }) })))))
+        : el('div', { class: 'muted' }, t('st.noInfl')));
     drawSpark(perRound);
   }
   function tokenize(text) {
@@ -375,32 +416,39 @@ export function initUI(engine, bus) {
     vals.forEach((v, i) => { const x = i / (n - 1) * w, y = h - 4 - v / mx * (h - 10); i ? g.lineTo(x, y) : g.moveTo(x, y); });
     g.strokeStyle = accent; g.lineWidth = 1.6; g.stroke();
     g.lineTo((vals.length - 1) / (n - 1) * w, h); g.lineTo(0, h); g.closePath(); g.globalAlpha = 0.18; g.fillStyle = accent; g.fill(); g.globalAlpha = 1;
-    g.fillStyle = css.getPropertyValue('--muted').trim() || '#999'; g.font = '10px sans-serif'; g.fillText('max ' + mx, 4, 11);
+    g.fillStyle = css.getPropertyValue('--muted').trim() || '#999'; g.font = '10px sans-serif'; g.fillText(t('st.max', { n: mx }), 4, 11);
   }
 
   // =====================================================================
   // GOD MODE
   // =====================================================================
-  const $rumor = el('input', { type: 'text', placeholder: 'A strange light was seen over the plaza…', maxlength: 140, 'aria-label': 'Rumor text', onkeydown: e => { if (e.key === 'Enter') god('rumor', $rumor.value.trim() || 'A mysterious rumor spreads…'); } });
+  let $rumor = null;
   function god(kind, text, label) {
     emit('cmd-god-event', { text, kind });
-    addFeedItem({ content: label || text, platform: '' }, null, { god: true, time: timeLabel(S.round) });
+    addFeedItem({ content: label || text, platform: '' }, null, { god: true, round: S.round });
     toast(label || text, ICONS.GOD, 'god');
-    if (kind === 'rumor') $rumor.value = '';
+    if (kind === 'rumor' && $rumor) $rumor.value = '';
   }
-  $panels.god.append(
-    el('div', { class: 'god-intro' }, el('p', {}, 'Play with the town. Events are ', el('b', {}, 'purely visual in replay'), ' — they ripple across the map and are logged in the feed, but they do not change the recorded simulation data.')),
-    el('h3', {}, '🗣️ Spread a rumor'), el('div', { class: 'ask-row' }, $rumor, el('button', { class: 'btn primary', onclick: () => god('rumor', $rumor.value.trim() || 'A mysterious rumor spreads…') }, 'Whisper')),
-    el('h3', {}, '🌦️ Weather'), el('div', { class: 'god-row' },
-      el('button', { class: 'btn god-btn', onclick: () => god('weather', 'rain', 'Rain begins to fall 🌧️') }, '🌧️ Rain'),
-      el('button', { class: 'btn god-btn', onclick: () => god('weather', 'snow', 'Snow blankets the town ❄️') }, '❄️ Snow'),
-      el('button', { class: 'btn god-btn', onclick: () => god('weather', 'clear', 'The sky clears ☀️') }, '☀️ Clear')),
-    el('h3', {}, '🎉 Festival'), el('div', { class: 'god-row' }, el('button', { class: 'btn god-btn', onclick: () => god('festival', 'festival', 'A festival begins in the plaza 🎉') }, '🎉 Start festival')));
+  function buildGod() {
+    const keep = $rumor ? $rumor.value : '';
+    const dflt = () => $rumor.value.trim() || t('god.rumorDefault');
+    $rumor = el('input', { type: 'text', placeholder: t('god.rumorPh'), maxlength: 140, 'aria-label': t('god.rumorAria'), value: keep, onkeydown: e => { if (e.key === 'Enter') god('rumor', dflt()); } });
+    $panels.god.replaceChildren(
+      el('div', { class: 'god-intro' }, el('p', {}, t('god.intro1'), el('b', {}, t('god.intro2')), t('god.intro3'))),
+      el('h3', {}, t('god.rumorH')), el('div', { class: 'ask-row' }, $rumor, el('button', { class: 'btn primary', onclick: () => god('rumor', dflt()) }, t('god.whisper'))),
+      el('h3', {}, t('god.weather')), el('div', { class: 'god-row' },
+        el('button', { class: 'btn god-btn', onclick: () => god('weather', 'rain', t('god.rainMsg')) }, t('god.rain')),
+        el('button', { class: 'btn god-btn', onclick: () => god('weather', 'snow', t('god.snowMsg')) }, t('god.snow')),
+        el('button', { class: 'btn god-btn', onclick: () => god('weather', 'clear', t('god.clearMsg')) }, t('god.clear'))),
+      el('h3', {}, t('god.festival')), el('div', { class: 'god-row' }, el('button', { class: 'btn god-btn', onclick: () => god('festival', 'festival', t('god.festivalMsg')) }, t('god.festivalBtn'))));
+  }
+  buildGod();
 
   // =====================================================================
   // TIMELINE
   // =====================================================================
-  const $tl = el('canvas', { class: 'tl-canvas', 'aria-label': 'Timeline' });
+  const $tl = el('canvas', { class: 'tl-canvas' });
+  L($tl, n => n.setAttribute('aria-label', t('tl.aria')));
   const $tlTip = el('div', { class: 'tl-tip', hidden: true });
   $time.replaceChildren(el('div', { class: 'tl-wrap' }, $tl, $tlTip));
   let tlCounts = [], tlSpikes = new Set(), tlDrag = false, tlRounds = [];
@@ -427,7 +475,7 @@ export function initUI(engine, bus) {
       const x = i * bw;
       if (r.day !== lastDay) {
         if (lastDay !== null) { g.fillStyle = C('--line'); g.fillRect(x, 0, 1, h); }
-        g.fillStyle = C('--muted'); g.font = '10px sans-serif'; g.fillText('Day ' + r.day, x + 4, 10); lastDay = r.day;
+        g.fillStyle = C('--muted'); g.font = '10px sans-serif'; g.fillText(t('tl.day', { day: r.day }), x + 4, 10); lastDay = r.day;
       }
       const bh = tlCounts[i] / mx * (base - top - 2);
       g.fillStyle = r.round <= S.round ? C('--accent') : C('--bar-future');
@@ -443,7 +491,7 @@ export function initUI(engine, bus) {
     const n = Math.max(1, S.totalRounds + 1), rd = clamp(Math.floor(x / r.width * n), 0, Math.max(0, S.totalRounds));
     if (commit) emit('cmd-seek', { round: rd });
     const rr = tlRounds[rd];
-    $tlTip.hidden = false; $tlTip.textContent = rr ? `R${rd} · D${rr.day} ${pad2(rr.hour)}:${pad2(rr.minute)} · ${tlCounts[rd]} actions${tlSpikes.has(rd) ? ' ⚡ spike' : ''}` : `R${rd}`;
+    $tlTip.hidden = false; $tlTip.textContent = rr ? t('tl.tip', { r: rd, day: rr.day, time: `${pad2(rr.hour)}:${pad2(rr.minute)}`, actions: t('n.actions', { n: tlCounts[rd] }) }) + (tlSpikes.has(rd) ? t('tl.spike') : '') : t('tl.r', { r: rd });
     $tlTip.style.left = clamp(x, 70, r.width - 70) + 'px';
   }
   $tl.addEventListener('pointerdown', e => { tlDrag = true; $tl.setPointerCapture(e.pointerId); tlPointer(e, true); });
@@ -471,13 +519,13 @@ export function initUI(engine, bus) {
       if (LIKE_STEPS.includes(n) && Date.now() - lastLikeToast > 2500) {
         lastLikeToast = Date.now();
         const p = S.data.posts[a.post_id], au = p && agent(p.author_id);
-        toast(`${au ? au.name + '’s' : 'A'} post just hit ${n} likes: “${trunc(p ? p.content : '', 60)}”`, '🔥');
+        toast(t('toast.likes', { who: au ? t('toast.whoPost', { name: au.name }) : t('toast.aPost'), likes: t('n.likes', { n }), text: trunc(p ? p.content : '', 60) }), '🔥');
       }
     } else if (a.type === 'FOLLOW' && !S.crossFollowToasted) {
-      const f = agent(a.agent_id), t = agent(a.target_agent_id);
-      if (f && t && ((f.stance === 'supportive' && t.stance === 'opposing') || (f.stance === 'opposing' && t.stance === 'supportive'))) {
+      const f = agent(a.agent_id), tg = agent(a.target_agent_id);
+      if (f && tg && ((f.stance === 'supportive' && tg.stance === 'opposing') || (f.stance === 'opposing' && tg.stance === 'supportive'))) {
         S.crossFollowToasted = true;
-        toast(`${f.name} (${f.stance}) followed ${t.name} (${t.stance}) — a bridge across the divide!`, '🤝');
+        toast(t('toast.bridge', { f: f.name, fs: stanceLabel(f.stance), t: tg.name, ts: stanceLabel(tg.stance) }), '🤝');
       }
     }
   }
@@ -485,19 +533,21 @@ export function initUI(engine, bus) {
   // =====================================================================
   // LIVE DIALOG
   // =====================================================================
-  function openLiveDialog() {
+  let liveDlg = null;
+  function openLiveDialog(draft) {
     const info = live.getInfo();
-    const $url = el('input', { type: 'text', value: tryStore('st.liveUrl') || (location.pathname.startsWith('/town') ? location.origin : (info.baseUrl || 'http://localhost:5001')), id: 'live-url', autocomplete: 'off' });
-    const $sim = el('input', { type: 'text', value: tryStore('st.liveSim') || info.simId || '', id: 'live-sim', placeholder: 'sim_xxxxxxxxxxxx', autocomplete: 'off' });
+    const $url = el('input', { type: 'text', value: (draft && draft.url) ?? (tryStore('st.liveUrl') || (location.pathname.startsWith('/town') ? location.origin : (info.baseUrl || 'http://localhost:5001'))), id: 'live-url', autocomplete: 'off' });
+    const $sim = el('input', { type: 'text', value: (draft && draft.sim) ?? (tryStore('st.liveSim') || info.simId || ''), id: 'live-sim', placeholder: 'sim_xxxxxxxxxxxx', autocomplete: 'off' });
     const $stat = el('div', { class: 'live-status', role: 'status' });
-    const $go = el('button', { class: 'btn primary', onclick: go }, 'Connect');
-    const $dis = el('button', { class: 'btn', onclick: () => { live.disconnect(); } }, 'Disconnect');
-    const close = () => { off(); $modal.replaceChildren(); document.removeEventListener('keydown', escClose, true); };
+    const $go = el('button', { class: 'btn primary', onclick: go }, t('live.connect'));
+    const $dis = el('button', { class: 'btn', onclick: () => { live.disconnect(); } }, t('live.disconnect'));
+    const close = () => { off(); liveDlg = null; $modal.replaceChildren(); document.removeEventListener('keydown', escClose, true); };
     const escClose = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
     function show(i) {
-      const map = { disconnected: 'Not connected.', connecting: 'Checking backend…', loading: 'Loading config and profiles…', connected: `Connected to ${i.simId}. Waiting for rounds…`,
-        running: `Live: ${i.runInfo.runner_status} · round ${i.runInfo.current_round}/${i.runInfo.total_rounds} · ${i.rounds} rounds imported`,
-        completed: `Simulation completed · ${i.rounds} rounds imported`, stopped: `Simulation stopped · ${i.rounds} rounds imported`, idle: `Connected; simulation is idle (not started) · ${i.rounds} rounds imported` };
+      const rounds = t('n.rounds', { n: i.rounds });
+      const map = { disconnected: t('live.st.disconnected'), connecting: t('live.st.connecting'), loading: t('live.st.loading'), connected: t('live.st.connected', { sim: i.simId }),
+        running: t('live.st.running', { status: i.runInfo.runner_status, cur: i.runInfo.current_round, total: i.runInfo.total_rounds, rounds }),
+        completed: t('live.st.completed', { rounds }), stopped: t('live.st.stopped', { rounds }), idle: t('live.st.idle', { rounds }), failed: t('live.st.failed', { rounds }) };
       $stat.className = 'live-status' + (i.status === 'error' ? ' err' : i.connected ? ' ok' : '');
       $stat.textContent = i.status === 'error' ? '⚠ ' + i.error : (map[i.status] || i.status);
       $go.disabled = i.status === 'connecting' || i.status === 'loading';
@@ -509,21 +559,24 @@ export function initUI(engine, bus) {
       try { await live.connect($sim.value.trim(), $url.value.trim()); setTimeout(close, 900); } catch { /* shown by status */ }
     }
     const dlg = el('div', { class: 'modal-backdrop', onclick: e => { if (e.target === dlg) close(); } },
-      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Connect to live simulation' },
-        el('h2', {}, '📡 Connect to a live simulation'),
-        el('p', { class: 'muted' }, 'Watch a running MiroFish simulation as it happens. The game polls the backend every 3 seconds.'),
-        el('label', { for: 'live-url' }, 'Backend URL'), $url, el('label', { for: 'live-sim' }, 'Simulation ID'), $sim, $stat,
-        el('div', { class: 'modal-actions' }, $dis, el('button', { class: 'btn', onclick: close }, 'Close'), $go)));
+      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('live.title') },
+        el('h2', {}, t('live.h')),
+        el('p', { class: 'muted' }, t('live.intro')),
+        el('label', { for: 'live-url' }, t('live.url')), $url, el('label', { for: 'live-sim' }, t('live.sim')), $sim, $stat,
+        el('div', { class: 'modal-actions' }, $dis, el('button', { class: 'btn', onclick: close }, t('live.close')), $go)));
     $modal.replaceChildren(dlg);
     document.addEventListener('keydown', escClose, true);
+    liveDlg = { close, draft: () => ({ url: $url.value, sim: $sim.value }) };
     show(info);
     setTimeout(() => $sim.focus(), 0);
   }
-  live.onChange(i => {
+  function renderLiveBtn() {
+    const i = live.getInfo();
     $liveBtn.classList.toggle('live-on', i.connected);
-    $liveBtn.textContent = i.connected ? (i.status === 'error' ? '📡 Live ⚠' : '🔴 Live') : '📡 Live';
-    updateAskState();
-  });
+    $liveBtn.textContent = t(i.connected ? (i.status === 'error' ? 'top.liveErr' : 'top.liveOn') : 'top.live');
+    $liveBtn.title = t('top.liveTip');
+  }
+  live.onChange(i => { renderLiveBtn(); updateAskState(); });
 
   // =====================================================================
   // KEYBOARD
@@ -546,9 +599,8 @@ export function initUI(engine, bus) {
     S.data = data; S.agents = new Map(data.agents.map(a => [a.id, a]));
     S.totalRounds = data.meta.total_rounds ?? Math.max(0, data.rounds.length - 1);
     S.crossFollowToasted = false; S.selected = null; S.follow = false;
-    $simTitle.textContent = data.meta.title || data.meta.simulation_id || 'Simulation';
-    $simTitle.title = data.meta.requirement || '';
-    const opts = [el('option', { value: 'all' }, 'All agents'), ...[...data.agents].sort((a, b) => a.name.localeCompare(b.name)).map(a => el('option', { value: String(a.id) }, a.name))];
+    renderSimTitle();
+    const opts = [el('option', { value: 'all' }, t('feed.allAgents')), ...[...data.agents].sort((a, b) => a.name.localeCompare(b.name)).map(a => el('option', { value: String(a.id) }, a.name))];
     $fAgent.replaceChildren(...opts); S.filters.agent = 'all';
     prevRound = 0; computeTimeline(); rebuildFeed(S.round = 0);
     renderAgent(); refreshStats(); drawTimeline(); renderControls();
@@ -558,7 +610,7 @@ export function initUI(engine, bus) {
   on('round', ({ round, day, hour, minute }) => {
     const jump = round < prevRound || round > prevRound + 1;
     S.round = round; S.day = day; S.hour = hour; S.minute = minute; prevRound = round;
-    $clock.textContent = `Day ${day} · ${pad2(hour)}:${pad2(minute)}`;
+    renderClock();
     if (jump && S.data) rebuildFeed(round);
     renderControls(); drawTimeline(); scheduleStats();
     if (S.tab === 'agent') refreshAgentDynamic();
@@ -567,7 +619,7 @@ export function initUI(engine, bus) {
     if (!S.data || !action) return;
     const a = ag ? S.agents.get(ag.id) || ag : S.agents.get(action.agent_id);
     const wasNew = !S.feedIds.has(action.id);
-    addFeedItem(action, a, { time: timeLabel(S.round) });
+    addFeedItem(action, a, { round: S.round });
     if (wasNew) checkToasts(action);
   });
   on('state', s => {
@@ -584,9 +636,23 @@ export function initUI(engine, bus) {
   setInterval(() => { if (S.tab === 'agent' && S.selected != null && S.playing) refreshAgentDynamic(); }, 1000);
 
   // initial
+  renderClock(); renderSimTitle(); renderLiveBtn();
   setTab('feed'); renderAgent(); renderControls();
-  $statsBody.append(el('div', { class: 'empty' }, 'No data loaded.'));
+  $statsBody.append(el('div', { class: 'empty' }, t('st.noData')));
   const d0 = engine.getData && engine.getData();
   if (d0) onData(d0);
+
+  // ---------- language switch: refresh text in place, never touching data / playback ----------
+  onLangChange(() => {
+    relabelFns.forEach(fn => fn());
+    const allOpt = $fAgent.options[0]; if (allOpt) allOpt.textContent = t('feed.allAgents');
+    renderClock(); renderSimTitle(); renderLiveBtn(); renderControls();
+    relabelFeed();
+    const q = $askInput ? $askInput.value : '';
+    renderAgent(); if ($askInput) $askInput.value = q;
+    buildGod();
+    refreshStats(); drawTimeline();
+    if (liveDlg) { const d = liveDlg.draft(); liveDlg.close(); openLiveDialog(d); }
+  });
   return { toast, live };
 }
