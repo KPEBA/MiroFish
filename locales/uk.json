@@ -456,7 +456,8 @@
     "readingGraphEntities": "Читання сутностей графа",
     "generatingProfiles": "Генерація профілів Агентів",
     "generatingSimConfig": "Генерація конфігурації симуляції",
-    "preparingScripts": "Підготовка скриптів"
+    "preparingScripts": "Підготовка скриптів",
+    "profileDone": "Готово {current}/{total}: {name} ({type})"
   },
   "log": {
     "preparingGoBack": "Підготовка до повернення до кроку 2, закриття симуляції...",

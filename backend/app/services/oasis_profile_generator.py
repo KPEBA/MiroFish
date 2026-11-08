@@ -1027,7 +1027,7 @@ class OasisProfileGenerator:
                         progress_callback(
                             current, 
                             total, 
-                            f"已完成 {current}/{total}: {entity.name}（{entity_type}）"
+                            t('progress.profileDone', current=current, total=total, name=entity.name, type=entity_type)
                         )
                     
                     if error:

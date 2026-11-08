@@ -75,7 +75,13 @@
     "layoutGraph": "图谱",
     "layoutSplit": "双栏",
     "layoutWorkbench": "工作台",
-    "stepNames": ["图谱构建", "环境搭建", "开始模拟", "报告生成", "深度互动"]
+    "stepNames": [
+      "图谱构建",
+      "环境搭建",
+      "开始模拟",
+      "报告生成",
+      "深度互动"
+    ]
   },
   "step1": {
     "ontologyGeneration": "本体生成",
@@ -450,7 +456,8 @@
     "readingGraphEntities": "读取图谱实体",
     "generatingProfiles": "生成Agent人设",
     "generatingSimConfig": "生成模拟配置",
-    "preparingScripts": "准备模拟脚本"
+    "preparingScripts": "准备模拟脚本",
+    "profileDone": "已完成 {current}/{total}: {name}（{type}）"
   },
   "log": {
     "preparingGoBack": "准备返回 Step 2，正在关闭模拟...",
